@@ -34,6 +34,8 @@ async function bootstrap() {
     .addTag('auth', 'Autenticação e autorização')
     .addTag('users', 'Gerenciamento de usuários')
     .addTag('companies', 'Gerenciamento de empresas')
+    .addTag('distributors', 'Gerenciamento de distribuidoras de energia')
+    .addTag('contacts', 'Formulário de contato da landing page')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

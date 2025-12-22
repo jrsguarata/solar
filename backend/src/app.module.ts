@@ -7,6 +7,9 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { CompaniesModule } from './modules/companies/companies.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
+import { DistributorsModule } from './modules/distributors/distributors.module';
+import { MailModule } from './modules/mail/mail.module';
 import { validate } from './config/env.validation';
 
 @Module({
@@ -20,6 +23,9 @@ import { validate } from './config/env.validation';
     AuthModule,
     UsersModule,
     CompaniesModule,
+    ContactsModule,
+    DistributorsModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

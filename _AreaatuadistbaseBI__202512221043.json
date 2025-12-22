@@ -1,0 +1,738 @@
+{
+"AreaatuadistbaseBI": [
+	{
+		"id" : 1,
+		"SIGLA" : "AME",
+		"UF" : "AM",
+		"Razão Social" : "AMAZONAS ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 2,
+		"SIGLA" : "CASTRO-DIS",
+		"UF" : "PR",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE CASTRO",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 3,
+		"SIGLA" : "CEA",
+		"UF" : "AP",
+		"Razão Social" : "COMPANHIA DE ELETRICIDADE DO AMAPÁ",
+		"Tipo de Outorga" : "DESIGNADA"
+	},
+	{
+		"id" : 4,
+		"SIGLA" : "CEB-DIS",
+		"UF" : "DF",
+		"Razão Social" : "CEB DISTRIBUIÇÃO S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 5,
+		"SIGLA" : "CEDRAP",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO DA REGIÃO DO ALTO PARAÍBA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 6,
+		"SIGLA" : "CEDRI",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO E DISTRIBUIÇÃO DA REGIÃO DE ITARIRI",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 7,
+		"SIGLA" : "CEEE-D",
+		"UF" : "RS",
+		"Razão Social" : "COMPANHIA ESTADUAL DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA - CEEE-D",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 8,
+		"SIGLA" : "CEGERO",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRICIDADE DE SÃO LUDGERO",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 9,
+		"SIGLA" : "CEJAMA",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRICIDADE JACINTO MACHADO",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 10,
+		"SIGLA" : "CELESC-DIS",
+		"UF" : "SC",
+		"Razão Social" : "CELESC DISTRIBUIÇÃO S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 11,
+		"SIGLA" : "CELETRO",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO CENTRO JACUÍ LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 12,
+		"SIGLA" : "CELPE",
+		"UF" : "PE",
+		"Razão Social" : "COMPANHIA ENERGÉTICA DE PERNAMBUCO",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 13,
+		"SIGLA" : "CEMAR",
+		"UF" : "MA",
+		"Razão Social" : "COMPANHIA ENERGÉTICA DO MARANHÃO",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 14,
+		"SIGLA" : "CEMIG-D",
+		"UF" : "MG",
+		"Razão Social" : "CEMIG DISTRIBUIÇÃO S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 15,
+		"SIGLA" : "CEMIRIM",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO E DESENVOLVIMENTO DA REGIÃO DE MOGI MIRIM",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 16,
+		"SIGLA" : "CEPRAG",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRICIDADE PRAIA GRANDE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 17,
+		"SIGLA" : "CERAÇÁ",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DISTRIBUIDORA DE ENERGIA VALE DO ARAÇÁ",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 18,
+		"SIGLA" : "CERAL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE ANITÁPOLIS - CERAL",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 19,
+		"SIGLA" : "CERAL-DIS",
+		"UF" : "PR",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA DE ARAPOTI",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 20,
+		"SIGLA" : "CERAL ARARUAMA",
+		"UF" : "RJ",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO RURAL DE ARARUAMA LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 21,
+		"SIGLA" : "CERBRANORTE",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO DE BRAÇO DO NORTE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 22,
+		"SIGLA" : "CERCI",
+		"UF" : "RJ",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO RURAL CACHOEIRAS ITABORAÍ LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 23,
+		"SIGLA" : "CEREJ",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE PRESTAÇÃO DE SERVIÇOS PÚBLICOS DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA SENADOR ESTEVES JÚNIOR",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 24,
+		"SIGLA" : "CERES",
+		"UF" : "RJ",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO RURAL DE RESENDE LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 25,
+		"SIGLA" : "CERFOX",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA FONTOURA XAVIER",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 26,
+		"SIGLA" : "CERGAL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO  ANITA GARIBALDI LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 27,
+		"SIGLA" : "CERGAPA",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRICIDADE GRÃO PARÁ",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 28,
+		"SIGLA" : "CERGRAL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRICIDADE DE GRAVATAL",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 29,
+		"SIGLA" : "CERILUZ",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA REGIONAL DE ENERGIA E DESENVOLVIMENTO IJUÍ LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 30,
+		"SIGLA" : "CERIM",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO RURAL ITU-MAIRINQUE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 31,
+		"SIGLA" : "CERIPA",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO RURAL DE ITAÍ-PARANAPANEMA-AVARÉ LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 32,
+		"SIGLA" : "CERIS",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO DA REGIÃO DE ITAPECERICA DA SERRA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 33,
+		"SIGLA" : "CERMC",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO E DESENVOLVIMENTO DA REGIÃO DE MOGI DAS CRUZES",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 34,
+		"SIGLA" : "CERMISSÕES",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO E GERAÇÃO DE ENERGIA DAS MISSÕES",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 35,
+		"SIGLA" : "CERMOFUL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA FUMACENSE DE ELETRICIDADE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 36,
+		"SIGLA" : "CERNHE",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO E DESENVOLVIMENTO RURAL DA REGIÃO DE NOVO HORIZONTE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 37,
+		"SIGLA" : "ERO",
+		"UF" : "RO",
+		"Razão Social" : "ENERGISA RONDÔNIA - DISTRIBUIDORA DE ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 38,
+		"SIGLA" : "CERPALO",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRICIDADE DE PAULO LOPES",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 39,
+		"SIGLA" : "CERPRO",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO RURAL DA REGIÃO DE PROMISSÃO",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 40,
+		"SIGLA" : "CERRP",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO E DESENVOLVIMENTO DA REGIÃO DE SÃO JOSÉ DO RIO PRETO-CERRP",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 41,
+		"SIGLA" : "CERSAD",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA SALTO DONNER",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 42,
+		"SIGLA" : "CERSUL",
+		"UF" : "SC",
+		"Razão Social" : "CERSUL - COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 43,
+		"SIGLA" : "CERTAJA",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA REGIONAL DE ENERGIA TAQUARI JACUÍ",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 44,
+		"SIGLA" : "CERTEL",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA TEUTÔNIA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 45,
+		"SIGLA" : "CERTHIL",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ENTRE RIOS LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 46,
+		"SIGLA" : "CERTREL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ENERGIA TREVISO",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 47,
+		"SIGLA" : "CERVAM",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ENERGIZAÇÃO E DE DESENVOLVIMENTO DO VALE DO MOGI",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 48,
+		"SIGLA" : "CETRIL",
+		"UF" : "SP",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO DE IBIÚNA E REGIÃO",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 49,
+		"SIGLA" : "CHESP",
+		"UF" : "GO",
+		"Razão Social" : "COMPANHIA HIDROELÉTRICA SÃO PATRÍCIO - CHESP",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 50,
+		"SIGLA" : "COCEL",
+		"UF" : "PR",
+		"Razão Social" : "COMPANHIA CAMPOLARGUENSE DE ENERGIA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 51,
+		"SIGLA" : "CODESAM",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA SANTA MARIA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 52,
+		"SIGLA" : "COELBA",
+		"UF" : "BA",
+		"Razão Social" : "COMPANHIA DE ELETRICIDADE DO ESTADO DA BAHIA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 53,
+		"SIGLA" : "COOPERA",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA PIONEIRA DE ELETRIFICAÇÃO - COOPERA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 54,
+		"SIGLA" : "COOPERALIANÇA",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA ALIANÇA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 55,
+		"SIGLA" : "COOPERCOCAL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA ENERGÉTICA COCAL",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 56,
+		"SIGLA" : "COOPERLUZ",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA DISTRIBUIDORA DE ENERGIA FRONTEIRA NOROESTE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 57,
+		"SIGLA" : "COOPERMILA",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO LAURO MULLER",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 58,
+		"SIGLA" : "COOPERNORTE",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA REGIONAL DE DISTRIBUIÇÃO DE ENERGIA DO LITORAL NORTE - COOPERNORTE",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 59,
+		"SIGLA" : "COOPERSUL",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA REGIONAL DE ELETRIFICAÇÃO RURAL FRONTEIRA SUL LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 60,
+		"SIGLA" : "COOPERZEM",
+		"UF" : "SC",
+		"Razão Social" : "COOPERZEM COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA ELÉTRICA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 61,
+		"SIGLA" : "COORSEL",
+		"UF" : "SC",
+		"Razão Social" : "COOPERATIVA REGIONAL SUL DE ELETRIFICAÇÃO RURAL",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 62,
+		"SIGLA" : "COPEL-DIS",
+		"UF" : "PR",
+		"Razão Social" : "COPEL DISTRIBUIÇÃO S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 63,
+		"SIGLA" : "COPREL",
+		"UF" : "RS",
+		"Razão Social" : "COPREL COOPERATIVA DE ENERGIA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 64,
+		"SIGLA" : "COSERN",
+		"UF" : "RN",
+		"Razão Social" : "COMPANHIA ENERGÉTICA DO RIO GRANDE DO NORTE COSERN",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 65,
+		"SIGLA" : "CPFL PAULISTA",
+		"UF" : "SP",
+		"Razão Social" : "COMPANHIA PAULISTA DE FORÇA E LUZ",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 66,
+		"SIGLA" : "CPFL PIRATININGA",
+		"UF" : "SP",
+		"Razão Social" : "COMPANHIA PIRATININGA DE FORÇA E LUZ",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 67,
+		"SIGLA" : "CPFL SANTA CRUZ",
+		"UF" : "SP",
+		"Razão Social" : "COMPANHIA JAGUARI DE ENERGIA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 68,
+		"SIGLA" : "CRELUZ-D",
+		"UF" : "RS",
+		"Razão Social" : "CRELUZ - COOPERATIVA DE DISTRIBUIÇÃO DE ENERGIA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 69,
+		"SIGLA" : "CRERAL",
+		"UF" : "RS",
+		"Razão Social" : "COOPERATIVA REGIONAL DE ELETRIFICAÇÃO RURAL DO ALTO URUGUAI",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 70,
+		"SIGLA" : "DEMEI",
+		"UF" : "RS",
+		"Razão Social" : "DEPARTAMENTO MUNICIPAL DE ENERGIA DE IJUÍ",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 71,
+		"SIGLA" : "DMED",
+		"UF" : "MG",
+		"Razão Social" : "DME DISTRIBUIÇÃO S.A. - DMED",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 72,
+		"SIGLA" : "EBO",
+		"UF" : "PB",
+		"Razão Social" : "ENERGISA BORBOREMA - DISTRIBUIDORA DE ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 73,
+		"SIGLA" : "EDP ES",
+		"UF" : "ES",
+		"Razão Social" : "ESPÍRITO SANTO DISTRIBUIÇÃO DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 74,
+		"SIGLA" : "EDP SP",
+		"UF" : "SP",
+		"Razão Social" : "EDP SÃO PAULO DISTRIBUIÇÃO DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 75,
+		"SIGLA" : "EFLJC",
+		"UF" : "SC",
+		"Razão Social" : "EMPRESA FORÇA E LUZ JOÃO CESA LTDA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 76,
+		"SIGLA" : "EFLUL",
+		"UF" : "SC",
+		"Razão Social" : "EMPRESA FORÇA E LUZ DE URUSSANGA LTDA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 77,
+		"SIGLA" : "EAC",
+		"UF" : "AC",
+		"Razão Social" : "ENERGISA ACRE - DISTRIBUIDORA DE ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 78,
+		"SIGLA" : "ELETROCAR",
+		"UF" : "RS",
+		"Razão Social" : "CENTRAIS ELÉTRICAS DE CARAZINHO SA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 79,
+		"SIGLA" : "EMG",
+		"UF" : "MG",
+		"Razão Social" : "ENERGISA MINAS GERAIS - DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 80,
+		"SIGLA" : "EMS",
+		"UF" : "MS",
+		"Razão Social" : "ENERGISA MATO GROSSO DO SUL - DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 81,
+		"SIGLA" : "EMT",
+		"UF" : "MT",
+		"Razão Social" : "ENERGISA MATO GROSSO - DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 82,
+		"SIGLA" : "ENEL CE",
+		"UF" : "CE",
+		"Razão Social" : "COMPANHIA ENERGÉTICA DO CEARÁ",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 83,
+		"SIGLA" : "ENEL GO",
+		"UF" : "GO",
+		"Razão Social" : "CELG DISTRIBUIÇÃO S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 84,
+		"SIGLA" : "ENEL RJ",
+		"UF" : "RJ",
+		"Razão Social" : "AMPLA ENERGIA E SERVIÇOS S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 85,
+		"SIGLA" : "ENEL SP",
+		"UF" : "SP",
+		"Razão Social" : "ELETROPAULO METROPOLITANA ELETRICIDADE DE SÃO PAULO S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 86,
+		"SIGLA" : "ENF",
+		"UF" : "RJ",
+		"Razão Social" : "ENERGISA NOVA FRIBURGO - DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 87,
+		"SIGLA" : "EPB",
+		"UF" : "PB",
+		"Razão Social" : "ENERGISA PARAÍBA - DISTRIBUIDORA DE ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 88,
+		"SIGLA" : "EQUATORIAL AL",
+		"UF" : "AL",
+		"Razão Social" : "EQUATORIAL ALAGOAS DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 89,
+		"SIGLA" : "EQUATORIAL PA",
+		"UF" : "PA",
+		"Razão Social" : "EQUATORIAL PARÁ DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 90,
+		"SIGLA" : "EQUATORIAL PI",
+		"UF" : "PI",
+		"Razão Social" : "EQUATORIAL PIAUÍ DISTRIBUIDORA DE ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 91,
+		"SIGLA" : "ESE",
+		"UF" : "SE",
+		"Razão Social" : "ENERGISA SERGIPE - DISTRIBUIDORA DE ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 92,
+		"SIGLA" : "ETO",
+		"UF" : "TO",
+		"Razão Social" : "ENERGISA TOCANTINS DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 93,
+		"SIGLA" : "FORCEL",
+		"UF" : "PR",
+		"Razão Social" : "FORÇA E LUZ CORONEL VIVIDA LTDA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 94,
+		"SIGLA" : "HIDROPAN",
+		"UF" : "RS",
+		"Razão Social" : "HIDROPAN DISTRIBUIÇÃO DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 95,
+		"SIGLA" : "DCELT",
+		"UF" : "SC",
+		"Razão Social" : "DCELT - DISTRIBUIDORA CATARINENSE DE ENERGIA ELÉTRICA LTDA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 96,
+		"SIGLA" : "MUXENERGIA",
+		"UF" : "RS",
+		"Razão Social" : "MUXFELDT MARIN E CIA LTDA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 97,
+		"SIGLA" : "RGE",
+		"UF" : "RS",
+		"Razão Social" : "RGE SUL DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 98,
+		"SIGLA" : "RORAIMA ENERGIA",
+		"UF" : "RR",
+		"Razão Social" : "RORAIMA ENERGIA S.A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 99,
+		"SIGLA" : "UHENPAL",
+		"UF" : "RS",
+		"Razão Social" : "NOVA PALMA ENERGIA LTDA",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 100,
+		"SIGLA" : "CERCOS",
+		"UF" : "SE",
+		"Razão Social" : "COOPERATIVA DE ELETRIFICAÇÃO E DESENVOLVIMENTO RURAL CENTRO SUL DE SERGIPE LTDA",
+		"Tipo de Outorga" : "PERMISSIONÁRIA"
+	},
+	{
+		"id" : 101,
+		"SIGLA" : "ELEKTRO",
+		"UF" : "SP",
+		"Razão Social" : "ELEKTRO REDES S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 102,
+		"SIGLA" : "ELFSM",
+		"UF" : "ES",
+		"Razão Social" : "EMPRESA LUZ E FORÇA SANTA MARIA S\/A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 103,
+		"SIGLA" : "ESS",
+		"UF" : "SP",
+		"Razão Social" : "ENERGISA SUL-SUDESTE - DISTRIBUIDORA DE ENERGIA S.A.",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 104,
+		"SIGLA" : "LIGHT",
+		"UF" : "RJ",
+		"Razão Social" : "LIGHT SERVIÇOS DE ELETRICIDADE S A",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	},
+	{
+		"id" : 105,
+		"SIGLA" : "SULGIPE",
+		"UF" : "SE",
+		"Razão Social" : "COMPANHIA SUL SERGIPANA DE ELETRICIDADE",
+		"Tipo de Outorga" : "CONCESSIONÁRIA"
+	}
+]}
