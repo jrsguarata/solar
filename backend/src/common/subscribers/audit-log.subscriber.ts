@@ -1,0 +1,201 @@
+import {
+  EntitySubscriberInterface,
+  EventSubscriber,
+  InsertEvent,
+  UpdateEvent,
+  SoftRemoveEvent,
+  RemoveEvent,
+  DataSource,
+} from 'typeorm';
+import { BaseEntity } from '../entities/base.entity';
+import { AuditLog, AuditAction } from '../entities/audit-log.entity';
+import { RequestContextService } from '../context/request-context';
+
+@EventSubscriber()
+export class AuditLogSubscriber
+  implements EntitySubscriberInterface<BaseEntity>
+{
+  constructor(private dataSource: DataSource) {}
+
+  listenTo() {
+    return BaseEntity;
+  }
+
+  async afterInsert(event: InsertEvent<BaseEntity>): Promise<void> {
+    await this.createAuditLog(
+      event,
+      AuditAction.INSERT,
+      undefined,
+      event.entity,
+    );
+  }
+
+  async afterUpdate(event: UpdateEvent<BaseEntity>): Promise<void> {
+    if (!event.entity) return;
+
+    // Obter valores antigos do banco
+    const oldEntity = event.databaseEntity;
+
+    await this.createAuditLog(
+      event,
+      AuditAction.UPDATE,
+      oldEntity,
+      event.entity as BaseEntity,
+    );
+  }
+
+  async afterSoftRemove(event: SoftRemoveEvent<BaseEntity>): Promise<void> {
+    if (!event.entity) return;
+
+    await this.createAuditLog(
+      event,
+      AuditAction.DELETE,
+      event.databaseEntity,
+      event.entity,
+    );
+  }
+
+  async afterRemove(event: RemoveEvent<BaseEntity>): Promise<void> {
+    if (!event.entity) return;
+
+    await this.createAuditLog(
+      event,
+      AuditAction.DELETE,
+      event.databaseEntity,
+      undefined,
+    );
+  }
+
+  private async createAuditLog(
+    event:
+      | InsertEvent<BaseEntity>
+      | UpdateEvent<BaseEntity>
+      | SoftRemoveEvent<BaseEntity>
+      | RemoveEvent<BaseEntity>,
+    action: AuditAction,
+    oldValues?: any,
+    newValues?: any,
+  ): Promise<void> {
+    try {
+      const tableName = event.metadata.tableName;
+      const recordId = this.getRecordId(event);
+
+      if (!recordId) return;
+
+      const userId = RequestContextService.getUserId();
+      const changedFields = this.getChangedFields(oldValues, newValues);
+
+      const auditLog = event.manager.create(AuditLog, {
+        tableName,
+        recordId,
+        action,
+        oldValues: this.sanitizeValues(oldValues),
+        newValues: this.sanitizeValues(newValues),
+        changedFields,
+        userId,
+      });
+
+      // Salvar em transação separada para não interferir com a operação principal
+      const queryRunner = event.connection.createQueryRunner();
+      await queryRunner.connect();
+
+      try {
+        await queryRunner.manager.save(auditLog);
+      } finally {
+        await queryRunner.release();
+      }
+    } catch (error) {
+      // Não propagar erro de auditoria para não quebrar a operação principal
+      console.error('Erro ao criar log de auditoria:', error);
+    }
+  }
+
+  private getRecordId(
+    event:
+      | InsertEvent<BaseEntity>
+      | UpdateEvent<BaseEntity>
+      | SoftRemoveEvent<BaseEntity>
+      | RemoveEvent<BaseEntity>,
+  ): string | undefined {
+    if (event.entity && 'id' in event.entity) {
+      return (event.entity as any).id;
+    }
+
+    // UpdateEvent e SoftRemoveEvent têm databaseEntity
+    if ('databaseEntity' in event && event.databaseEntity && 'id' in event.databaseEntity) {
+      return (event.databaseEntity as any).id;
+    }
+
+    return undefined;
+  }
+
+  private getChangedFields(oldValues?: any, newValues?: any): string[] {
+    if (!oldValues || !newValues) {
+      return [];
+    }
+
+    const changed: string[] = [];
+    const allKeys = new Set([
+      ...Object.keys(oldValues),
+      ...Object.keys(newValues),
+    ]);
+
+    for (const key of allKeys) {
+      if (this.shouldIgnoreField(key)) {
+        continue;
+      }
+
+      const oldValue = oldValues[key];
+      const newValue = newValues[key];
+
+      if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+        changed.push(key);
+      }
+    }
+
+    return changed;
+  }
+
+  private shouldIgnoreField(fieldName: string): boolean {
+    const ignoredFields = [
+      'updatedAt',
+      'updated_at',
+      'updatedBy',
+      'updated_by',
+    ];
+    return ignoredFields.includes(fieldName);
+  }
+
+  private sanitizeValues(values?: any): Record<string, any> | undefined {
+    if (!values) {
+      return undefined;
+    }
+
+    const sanitized: Record<string, any> = {};
+
+    for (const key in values) {
+      if (values.hasOwnProperty(key)) {
+        sanitized[key] = this.sanitizeField(key, values[key]);
+      }
+    }
+
+    return sanitized;
+  }
+
+  private sanitizeField(fieldName: string, value: any): any {
+    // Campos sensíveis que devem ser ocultados nos logs
+    const sensitiveFields = [
+      'password',
+      'token',
+      'secret',
+      'accessToken',
+      'refreshToken',
+    ];
+
+    if (sensitiveFields.includes(fieldName)) {
+      return '***REDACTED***';
+    }
+
+    return value;
+  }
+}
