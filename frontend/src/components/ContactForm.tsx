@@ -1,11 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Send, User, Mail, Phone, Building, MessageSquare, CheckCircle, AlertCircle, Zap } from 'lucide-react';
-
-interface Distributor {
-  id: string;
-  name: string;
-  uf?: string;
-}
+import { useDistributors, useContact } from '../presenters';
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
@@ -18,49 +13,16 @@ export function ContactForm() {
   });
 
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [distributors, setDistributors] = useState<Distributor[]>([]);
-  const [loadingDistributors, setLoadingDistributors] = useState(true);
 
-  useEffect(() => {
-    const fetchDistributors = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/v1/distributors');
-        if (response.ok) {
-          const data = await response.json();
-          setDistributors(data);
-        }
-      } catch (err) {
-        console.error('Erro ao carregar distribuidoras:', err);
-      } finally {
-        setLoadingDistributors(false);
-      }
-    };
-
-    fetchDistributors();
-  }, []);
+  // Usar presenters (MCP)
+  const { distributors, loading: loadingDistributors } = useDistributors();
+  const { submitContact, loading, error } = useContact();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
     try {
-      const response = await fetch('http://localhost:3000/api/v1/contacts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao enviar mensagem');
-      }
-
+      await submitContact(formData);
       setSubmitted(true);
 
       // Reset após 5 segundos
@@ -69,9 +31,8 @@ export function ContactForm() {
         setFormData({ name: '', email: '', phone: '', company: '', distributorId: '', message: '' });
       }, 5000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao enviar mensagem. Tente novamente.');
-    } finally {
-      setLoading(false);
+      // Erro já é tratado pelo presenter
+      console.error('Erro ao enviar contato:', err);
     }
   };
 
