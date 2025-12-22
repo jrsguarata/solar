@@ -1,0 +1,23 @@
+{
+  "name": "solar",
+  "version": "1.0.0",
+  "description": "Sistema fullstack moderno com autenticação e CRUD completo",
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules",
+    "lint:all": "cd frontend && npm run lint && cd ../backend && npm run lint",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:rebuild": "docker-compose up -d --build"
+  },
+  "keywords": [
+    "fullstack",
+    "react",
+    "nestjs",
+    "typescript",
+    "postgresql"
+  ],
+  "author": "",
+  "license": "MIT"
+}
