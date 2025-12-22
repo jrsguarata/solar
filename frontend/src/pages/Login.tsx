@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Sun, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../presenters';
 
@@ -153,21 +153,21 @@ export function Login() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Não tem uma conta?{' '}
-              <a href="/#contact" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <Link to="/#contact" className="text-blue-600 hover:text-blue-700 font-semibold">
                 Entre em contato
-              </a>
+              </Link>
             </p>
           </div>
         </div>
 
         {/* Back to Home */}
         <div className="text-center mt-6">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="text-blue-100 hover:text-white font-medium transition-colors"
           >
             ← Voltar para o site
-          </a>
+          </Link>
         </div>
       </div>
     </div>
