@@ -13,6 +13,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CompanyAccessGuard } from '../auth/guards/company-access.guard';
@@ -105,5 +106,32 @@ export class UsersController {
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   activate(@Param('id') id: string) {
     return this.usersService.activate(id);
+  }
+
+  @Patch(':id/change-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Change user password (authenticated user can change their own password)' })
+  @ApiResponse({ status: 200, description: 'Password changed successfully' })
+  @ApiResponse({ status: 400, description: 'Current password is incorrect' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Can only change own password' })
+  async changePassword(
+    @Param('id') id: string,
+    @Body() changePasswordDto: ChangePasswordDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    // Verificar se o usuário está tentando mudar sua própria senha
+    if (currentUser.sub !== id) {
+      throw new Error('Você só pode alterar sua própria senha');
+    }
+
+    await this.usersService.changePassword(
+      id,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword,
+    );
+
+    return { message: 'Senha alterada com sucesso' };
   }
 }

@@ -1,9 +1,11 @@
-import { Injectable, UnauthorizedException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, ForbiddenException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { CreateInitialAdminDto } from './dto/create-initial-admin.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +13,9 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
+  // Armazenamento temporário de códigos de recuperação (em produção, usar Redis)
+  private recoveryCodes: Map<string, { code: string; expiresAt: Date }> = new Map();
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
@@ -130,5 +135,96 @@ export class AuthService {
     const savedAdmin = await this.usersRepository.save(admin);
 
     return this.login(savedAdmin);
+  }
+
+  /**
+   * Solicitar recuperação de senha - Gera código e "envia" SMS
+   */
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+
+    // Buscar usuário pelo email
+    const user = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Nenhum usuário encontrado com este email');
+    }
+
+    // Verificar se usuário está ativo
+    if (!user.isActive) {
+      throw new BadRequestException('Conta de usuário desativada');
+    }
+
+    // Verificar se usuário tem celular cadastrado
+    if (!user.mobile) {
+      throw new BadRequestException('Usuário não possui celular cadastrado');
+    }
+
+    // Gerar código de 6 dígitos
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Armazenar código com validade de 15 minutos usando o celular como chave
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 15);
+
+    this.recoveryCodes.set(user.mobile, { code, expiresAt });
+
+    // TODO: Integrar com serviço de SMS real (Twilio, AWS SNS, etc.)
+    console.log(`[SMS] Código de recuperação para ${user.mobile}: ${code}`);
+
+    return {
+      message: 'Código de recuperação enviado para o celular cadastrado',
+      phone: user.mobile, // Retornar telefone mascarado para exibir na UI
+      // Em desenvolvimento, retornar o código (REMOVER EM PRODUÇÃO)
+      code: process.env.NODE_ENV === 'development' ? code : undefined,
+    };
+  }
+
+  /**
+   * Resetar senha com código de verificação
+   */
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { phone, code, newPassword } = resetPasswordDto;
+
+    // Verificar se existe código para este telefone
+    const storedData = this.recoveryCodes.get(phone);
+
+    if (!storedData) {
+      throw new BadRequestException('Código de recuperação não encontrado ou expirado');
+    }
+
+    // Verificar se código expirou
+    if (new Date() > storedData.expiresAt) {
+      this.recoveryCodes.delete(phone);
+      throw new BadRequestException('Código de recuperação expirado. Solicite um novo código');
+    }
+
+    // Verificar se código está correto
+    if (storedData.code !== code) {
+      throw new BadRequestException('Código de recuperação inválido');
+    }
+
+    // Buscar usuário
+    const user = await this.usersRepository.findOne({
+      where: { mobile: phone },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    // Atualizar senha
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await this.usersRepository.save(user);
+
+    // Remover código usado
+    this.recoveryCodes.delete(phone);
+
+    return {
+      message: 'Senha alterada com sucesso',
+    };
   }
 }

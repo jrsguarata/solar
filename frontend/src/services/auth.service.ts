@@ -1,5 +1,14 @@
 import api from './api';
-import type { LoginDto, LoginResponse, RefreshTokenDto, RefreshTokenResponse } from '../models';
+import type {
+  LoginDto,
+  LoginResponse,
+  RefreshTokenDto,
+  RefreshTokenResponse,
+  ForgotPasswordDto,
+  ForgotPasswordResponse,
+  ResetPasswordDto,
+  ResetPasswordResponse,
+} from '../models';
 
 class AuthService {
   /**
@@ -57,6 +66,22 @@ class AuthService {
     localStorage.setItem('accessToken', authData.accessToken);
     localStorage.setItem('refreshToken', authData.refreshToken);
     localStorage.setItem('user', JSON.stringify(authData.user));
+  }
+
+  /**
+   * Solicitar recuperação de senha
+   */
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<ForgotPasswordResponse> {
+    const { data } = await api.post<ForgotPasswordResponse>('/auth/forgot-password', forgotPasswordDto);
+    return data;
+  }
+
+  /**
+   * Resetar senha com código de verificação
+   */
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResetPasswordResponse> {
+    const { data } = await api.post<ResetPasswordResponse>('/auth/reset-password', resetPasswordDto);
+    return data;
   }
 }
 

@@ -35,6 +35,18 @@ export function Login() {
     });
   };
 
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/');
+    // Aguardar a navegação e depois rolar até a seção
+    setTimeout(() => {
+      const contactSection = document.getElementById('contact');
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 flex items-center justify-center p-4">
       {/* Background Pattern */}
@@ -134,9 +146,9 @@ export function Login() {
                   Lembrar-me
                 </label>
               </div>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                 Esqueceu a senha?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
@@ -153,9 +165,13 @@ export function Login() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Não tem uma conta?{' '}
-              <Link to="/#contact" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <a
+                href="/#contact"
+                onClick={handleContactClick}
+                className="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
+              >
                 Entre em contato
-              </Link>
+              </a>
             </p>
           </div>
         </div>

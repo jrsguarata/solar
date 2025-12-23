@@ -4,3 +4,4 @@ export * from './Auth';
 export * from './Company';
 export * from './Distributor';
 export * from './Contact';
+export * from './AuditLog';

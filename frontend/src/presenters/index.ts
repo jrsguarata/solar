@@ -2,3 +2,4 @@
 export * from './useAuth';
 export * from './useDistributors';
 export * from './useContact';
+export * from './usePasswordRecovery';

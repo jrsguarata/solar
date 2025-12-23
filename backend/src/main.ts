@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -18,6 +18,25 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (errors) => {
+        const messages = errors.map(error => {
+          const constraints = error.constraints;
+          if (constraints) {
+            // Traduzir mensagens padrão para português
+            const translatedMessages = Object.values(constraints).map(msg => {
+              return msg
+                .replace(/property .+ should not exist/i, `propriedade ${error.property} não deveria existir`)
+                .replace(/(.+) should not be empty/i, '$1 não pode estar vazio')
+                .replace(/(.+) must be a string/i, '$1 deve ser uma string')
+                .replace(/(.+) must be an email/i, '$1 deve ser um email válido');
+            });
+            return translatedMessages.join(', ');
+          }
+          return `Erro de validação em ${error.property}`;
+        });
+
+        return new BadRequestException(messages.join('; '));
+      },
     }),
   );
 

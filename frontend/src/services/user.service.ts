@@ -49,6 +49,24 @@ class UserService {
     const { data } = await api.patch<User>(`/users/${id}/activate`);
     return data;
   }
+
+  /**
+   * Alterar senha do usuário
+   */
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    const { data } = await api.patch<{ message: string }>(
+      `/users/${id}/change-password`,
+      {
+        currentPassword,
+        newPassword,
+      },
+    );
+    return data;
+  }
 }
 
 export default new UserService();

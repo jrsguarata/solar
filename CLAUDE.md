@@ -511,6 +511,16 @@ create(@Body() createCompanyDto: CreateCompanyDto) {
 2. **Todas as alterações são registradas** - Tabela `audit_logs`
 3. **Rastreabilidade completa** - Valores antes e depois de cada mudança
 4. **Campos sensíveis são protegidos** - Passwords/tokens ocultados nos logs
+5. **CRUD completo é auditado** - Todo CREATE, UPDATE e DELETE gera registro em `audit_logs`
+
+**REGRA CRÍTICA: Qualquer operação de CRUD (Create, Read, Update, Delete) em qualquer tabela do sistema DEVE gerar automaticamente um registro na tabela `audit_logs`.**
+
+- **CREATE**: Registra `action: INSERT` com os valores do novo registro em `newValues`
+- **UPDATE**: Registra `action: UPDATE` com valores antigos em `oldValues` e novos em `newValues`, além de `changedFields`
+- **DELETE/SOFT DELETE**: Registra `action: DELETE` com os valores do registro em `oldValues`
+- **READ**: Não é auditado por questões de performance (exceto em casos críticos específicos)
+
+Isso é implementado através de **TypeORM Subscribers** que escutam todos os eventos de banco de dados automaticamente.
 
 #### Implementação
 
@@ -554,23 +564,54 @@ async remove(id: string): Promise<void> {
 
 // ✅ Auditoria automática via TypeORM Subscribers
 @EventSubscriber()
-export class AuditLogSubscriber {
-  async afterInsert(event: InsertEvent<BaseEntity>) {
+export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
+  constructor(private dataSource: DataSource) {}
+
+  // Não implementar listenTo() para escutar TODAS as entidades
+
+  async afterInsert(event: InsertEvent<any>) {
     // Registra INSERT na tabela audit_logs
+    // Ignora audit_logs para evitar loop infinito
   }
 
-  async afterUpdate(event: UpdateEvent<BaseEntity>) {
+  async afterUpdate(event: UpdateEvent<any>) {
     // Registra UPDATE com valores antigos e novos
+    // Calcula changedFields automaticamente
   }
 
-  async afterSoftRemove(event: SoftRemoveEvent<BaseEntity>) {
+  async afterSoftRemove(event: SoftRemoveEvent<any>) {
     // Registra DELETE (soft)
   }
+
+  async afterRemove(event: RemoveEvent<any>) {
+    // Registra DELETE (hard - não recomendado)
+  }
 }
+
+// ✅ IMPORTANTE: Subscriber deve ser registrado no typeorm.config.ts
+export const getTypeOrmConfig = (configService: ConfigService): DataSourceOptions => ({
+  // ... outras configs
+  subscribers: [AuditSubscriber, AuditLogSubscriber],
+});
 
 // ✅ Consultar histórico de auditoria
 const history = await auditService.getAuditHistory('users', userId);
 // Retorna todos os logs de mudanças para aquele usuário
+
+// ✅ Verificar auditoria via SQL
+-- Ver total de registros por ação
+SELECT COUNT(*) as total, action FROM audit_logs GROUP BY action;
+
+-- Ver últimos registros de auditoria
+SELECT table_name, action, record_id, user_id, created_at
+FROM audit_logs
+ORDER BY created_at DESC
+LIMIT 10;
+
+-- Ver histórico de um registro específico
+SELECT * FROM audit_logs
+WHERE table_name = 'users' AND record_id = 'uuid-do-usuario'
+ORDER BY created_at DESC;
 ```
 
 #### Benefícios
@@ -646,6 +687,28 @@ throw new BadRequestException('Usuário já está desativado');
 throw new NotFoundException(`User with ID ${id} not found`);
 throw new BadRequestException('Invalid email format');
 
+// ✅ BACKEND: Validações class-validator em português
+export class CreateUserDto {
+  @IsString({ message: 'Nome deve ser uma string' })
+  @IsNotEmpty({ message: 'Nome não pode estar vazio' })
+  name: string;
+
+  @IsEmail({}, { message: 'Email inválido' })
+  @IsNotEmpty({ message: 'Email não pode estar vazio' })
+  email: string;
+
+  @IsString({ message: 'Senha deve ser uma string' })
+  @MinLength(8, { message: 'Senha deve ter no mínimo 8 caracteres' })
+  password: string;
+}
+
+// ❌ BACKEND: Validações em inglês
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string; // Erro: "name should not be empty"
+}
+
 // ✅ FRONTEND: Mensagens e textos em português
 toast.error('Erro ao carregar dados');
 toast.success('Usuário criado com sucesso');
@@ -660,6 +723,144 @@ setError('Login failed. Check your credentials.');
 <button>Save</button>
 <input placeholder="Enter your email" />
 ```
+
+### Paginação de Tabelas
+
+**REGRA GERAL: Todas as tabelas exibidas no frontend devem ter paginação.**
+
+#### Requisitos de Paginação
+
+1. **Frontend (Exibição)**:
+   - Máximo de **10 elementos por página** na interface
+   - Componente de paginação com navegação entre páginas
+   - Indicação da página atual e total de páginas
+   - Botões: Primeira, Anterior, Próxima, Última
+
+2. **Backend (Carregamento)**:
+   - Buscar registros em lotes de **200 em 200**
+   - Quando a visualização ultrapassar os 200 registros carregados, fazer nova requisição
+   - Cache local dos registros já carregados para evitar requisições repetidas
+
+3. **Implementação**:
+
+```typescript
+// ✅ FRONTEND: Paginação com carregamento incremental
+interface PaginationState {
+  currentPage: number;        // Página atual (interface)
+  itemsPerPage: number;       // 10 itens por página
+  totalItems: number;         // Total de registros
+  loadedItems: any[];         // Registros carregados do backend
+  backendOffset: number;      // Offset para próxima carga do backend
+  backendLimit: number;       // 200 registros por lote
+}
+
+const [pagination, setPagination] = useState<PaginationState>({
+  currentPage: 1,
+  itemsPerPage: 10,
+  totalItems: 0,
+  loadedItems: [],
+  backendOffset: 0,
+  backendLimit: 200,
+});
+
+// Calcular registros da página atual
+const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+const endIndex = startIndex + pagination.itemsPerPage;
+const currentPageItems = pagination.loadedItems.slice(startIndex, endIndex);
+
+// Verificar se precisa carregar mais registros
+useEffect(() => {
+  const needMoreData = endIndex >= pagination.loadedItems.length
+    && pagination.loadedItems.length < pagination.totalItems;
+
+  if (needMoreData) {
+    loadMoreFromBackend();
+  }
+}, [pagination.currentPage]);
+
+const loadMoreFromBackend = async () => {
+  const { data, total } = await api.get('/users', {
+    params: {
+      offset: pagination.backendOffset,
+      limit: pagination.backendLimit,
+    },
+  });
+
+  setPagination(prev => ({
+    ...prev,
+    loadedItems: [...prev.loadedItems, ...data],
+    backendOffset: prev.backendOffset + prev.backendLimit,
+    totalItems: total,
+  }));
+};
+
+// Componente de paginação
+<div className="flex items-center justify-between mt-4">
+  <p className="text-sm text-gray-600">
+    Exibindo {startIndex + 1} a {Math.min(endIndex, pagination.totalItems)} de {pagination.totalItems} registros
+  </p>
+
+  <div className="flex gap-2">
+    <button
+      onClick={() => setPagination(prev => ({ ...prev, currentPage: 1 }))}
+      disabled={pagination.currentPage === 1}
+    >
+      Primeira
+    </button>
+    <button
+      onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage - 1 }))}
+      disabled={pagination.currentPage === 1}
+    >
+      Anterior
+    </button>
+    <span>Página {pagination.currentPage} de {Math.ceil(pagination.totalItems / pagination.itemsPerPage)}</span>
+    <button
+      onClick={() => setPagination(prev => ({ ...prev, currentPage: prev.currentPage + 1 }))}
+      disabled={pagination.currentPage >= Math.ceil(pagination.totalItems / pagination.itemsPerPage)}
+    >
+      Próxima
+    </button>
+    <button
+      onClick={() => setPagination(prev => ({
+        ...prev,
+        currentPage: Math.ceil(pagination.totalItems / pagination.itemsPerPage)
+      }))}
+      disabled={pagination.currentPage >= Math.ceil(pagination.totalItems / pagination.itemsPerPage)}
+    >
+      Última
+    </button>
+  </div>
+</div>
+```
+
+```typescript
+// ✅ BACKEND: Suporte a paginação
+@Get()
+async findAll(
+  @Query('offset') offset: number = 0,
+  @Query('limit') limit: number = 200,
+  @CurrentUser() currentUser: any,
+) {
+  const [data, total] = await this.usersRepository.findAndCount({
+    skip: offset,
+    take: Math.min(limit, 200), // Máximo 200 por requisição
+    order: { createdAt: 'DESC' },
+  });
+
+  return {
+    data,
+    total,
+    offset,
+    limit,
+  };
+}
+```
+
+#### Benefícios:
+- ✅ **Performance**: Carrega apenas dados necessários
+- ✅ **UX**: Navegação rápida entre páginas
+- ✅ **Escalabilidade**: Funciona com milhares de registros
+- ✅ **Economia**: Reduz tráfego de rede e uso de memória
 
 ### NUNCA Commitar
 
@@ -852,12 +1053,24 @@ VITE_APP_NAME=MyApp
     @IsEmail()
     @IsNotEmpty()
     email: string;
-    
+
     // Frontend
     const schema = z.object({
       email: z.string().email(),
     });
     ```
+
+11. **Implemente paginação em todas as tabelas**
+    - Máximo de **10 itens por página** na interface
+    - Carregar do backend em lotes de **200 registros**
+    - Carregar mais 200 quando necessário (carregamento incremental)
+    - Componente de paginação com: Primeira, Anterior, Próxima, Última
+    - Indicador de "Exibindo X a Y de Z registros"
+
+12. **Use mensagens em português**
+    - Todas as mensagens de erro, validação e feedback em português brasileiro
+    - Traduzir mensagens padrão do class-validator
+    - Textos de interface (labels, botões, placeholders) em português
 
 ### Ao sugerir mudanças:
 

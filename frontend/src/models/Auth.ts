@@ -31,3 +31,27 @@ export interface RegisterDto {
   mobile: string;
   password: string;
 }
+
+// Interface de Esqueci minha senha Request
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+// Interface de Esqueci minha senha Response
+export interface ForgotPasswordResponse {
+  message: string;
+  phone: string; // Telefone do usuário
+  code?: string; // Apenas em desenvolvimento
+}
+
+// Interface de Resetar senha Request
+export interface ResetPasswordDto {
+  phone: string;
+  code: string;
+  newPassword: string;
+}
+
+// Interface de Resetar senha Response
+export interface ResetPasswordResponse {
+  message: string;
+}

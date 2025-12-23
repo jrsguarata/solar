@@ -4,6 +4,8 @@ import {
   Column,
   CreateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum AuditAction {
@@ -44,6 +46,10 @@ export class AuditLog {
   @Column({ name: 'user_id', nullable: true })
   @Index()
   userId?: string;
+
+  @ManyToOne('User', { nullable: true, eager: false })
+  @JoinColumn({ name: 'user_id' })
+  user?: any;
 
   @Column({ name: 'ip_address', nullable: true })
   ipAddress?: string;

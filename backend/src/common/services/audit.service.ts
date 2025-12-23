@@ -127,4 +127,43 @@ export class AuditService {
       take: 100, // Limitar para performance
     });
   }
+
+  async findAll(filters?: {
+    tableName?: string;
+    action?: string;
+    userId?: string;
+    recordId?: string;
+  }): Promise<AuditLog[]> {
+    const queryBuilder = this.auditLogRepository
+      .createQueryBuilder('audit_log')
+      .leftJoinAndSelect('audit_log.user', 'user')
+      .orderBy('audit_log.createdAt', 'DESC')
+      .take(500); // Limitar retorno para performance
+
+    if (filters?.tableName) {
+      queryBuilder.andWhere('audit_log.tableName = :tableName', {
+        tableName: filters.tableName,
+      });
+    }
+
+    if (filters?.action) {
+      queryBuilder.andWhere('audit_log.action = :action', {
+        action: filters.action,
+      });
+    }
+
+    if (filters?.userId) {
+      queryBuilder.andWhere('audit_log.userId = :userId', {
+        userId: filters.userId,
+      });
+    }
+
+    if (filters?.recordId) {
+      queryBuilder.andWhere('audit_log.recordId = :recordId', {
+        recordId: filters.recordId,
+      });
+    }
+
+    return queryBuilder.getMany();
+  }
 }

@@ -11,6 +11,8 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { CreateInitialAdminDto } from './dto/create-initial-admin.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -64,5 +66,29 @@ export class AuthController {
   @ApiResponse({ status: 409, description: 'Email já existe' })
   createInitialAdmin(@Body() createInitialAdminDto: CreateInitialAdminDto) {
     return this.authService.createInitialAdmin(createInitialAdminDto);
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Solicitar recuperação de senha',
+    description: 'Envia código de 6 dígitos para o celular cadastrado. Código válido por 15 minutos.'
+  })
+  @ApiResponse({ status: 200, description: 'Código de recuperação enviado' })
+  @ApiResponse({ status: 404, description: 'Nenhum usuário encontrado com este telefone' })
+  @ApiResponse({ status: 400, description: 'Conta de usuário desativada' })
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({
+    summary: 'Resetar senha com código de verificação',
+    description: 'Valida o código enviado por SMS e altera a senha do usuário'
+  })
+  @ApiResponse({ status: 200, description: 'Senha alterada com sucesso' })
+  @ApiResponse({ status: 400, description: 'Código inválido ou expirado' })
+  @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

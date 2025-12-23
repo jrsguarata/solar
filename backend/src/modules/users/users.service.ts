@@ -164,4 +164,37 @@ export class UsersService {
 
     return this.usersRepository.save(user);
   }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    // Buscar usuário com a senha
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'email', 'password', 'isActive'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    if (!user.isActive) {
+      throw new BadRequestException('Usuário está desativado');
+    }
+
+    // Verificar se a senha atual está correta
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Senha atual incorreta');
+    }
+
+    // Hash da nova senha
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Atualizar senha
+    await this.usersRepository.update(userId, { password: hashedPassword });
+  }
 }

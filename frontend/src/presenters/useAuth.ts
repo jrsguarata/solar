@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { authService, getErrorMessage } from '../services';
+import { useAuthStore } from '../store/authStore';
 import type { LoginDto, LoginResponse } from '../models';
 
 interface UseAuthReturn {
@@ -14,6 +15,7 @@ interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { setAuth, logout: logoutStore, isAuthenticated: isAuthenticatedStore, user } = useAuthStore();
 
   const login = async (credentials: LoginDto) => {
     try {
@@ -21,7 +23,10 @@ export function useAuth(): UseAuthReturn {
       setError(null);
 
       const authData = await authService.login(credentials);
+
+      // Save to localStorage (via service) and Zustand store
       authService.saveAuthData(authData);
+      setAuth(authData.user, authData.accessToken, authData.refreshToken);
     } catch (err) {
       const message = getErrorMessage(err);
       setError(message);
@@ -37,6 +42,7 @@ export function useAuth(): UseAuthReturn {
       setError(null);
 
       await authService.logout();
+      logoutStore();
     } catch (err) {
       const message = getErrorMessage(err);
       setError(message);
@@ -47,11 +53,11 @@ export function useAuth(): UseAuthReturn {
   };
 
   const isAuthenticated = () => {
-    return authService.isAuthenticated();
+    return isAuthenticatedStore();
   };
 
   const getCurrentUser = () => {
-    return authService.getCurrentUser();
+    return user;
   };
 
   return {

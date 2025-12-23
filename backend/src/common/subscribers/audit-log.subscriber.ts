@@ -7,21 +7,17 @@ import {
   RemoveEvent,
   DataSource,
 } from 'typeorm';
-import { BaseEntity } from '../entities/base.entity';
 import { AuditLog, AuditAction } from '../entities/audit-log.entity';
 import { RequestContextService } from '../context/request-context';
 
 @EventSubscriber()
-export class AuditLogSubscriber
-  implements EntitySubscriberInterface<BaseEntity>
-{
+export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
   constructor(private dataSource: DataSource) {}
 
-  listenTo() {
-    return BaseEntity;
-  }
+  // Não implementar listenTo() para escutar TODAS as entidades
+  // Se listenTo() não for implementado ou retornar undefined, o subscriber escuta todas
 
-  async afterInsert(event: InsertEvent<BaseEntity>): Promise<void> {
+  async afterInsert(event: InsertEvent<any>): Promise<void> {
     await this.createAuditLog(
       event,
       AuditAction.INSERT,
@@ -30,7 +26,7 @@ export class AuditLogSubscriber
     );
   }
 
-  async afterUpdate(event: UpdateEvent<BaseEntity>): Promise<void> {
+  async afterUpdate(event: UpdateEvent<any>): Promise<void> {
     if (!event.entity) return;
 
     // Obter valores antigos do banco
@@ -40,11 +36,11 @@ export class AuditLogSubscriber
       event,
       AuditAction.UPDATE,
       oldEntity,
-      event.entity as BaseEntity,
+      event.entity,
     );
   }
 
-  async afterSoftRemove(event: SoftRemoveEvent<BaseEntity>): Promise<void> {
+  async afterSoftRemove(event: SoftRemoveEvent<any>): Promise<void> {
     if (!event.entity) return;
 
     await this.createAuditLog(
@@ -55,7 +51,7 @@ export class AuditLogSubscriber
     );
   }
 
-  async afterRemove(event: RemoveEvent<BaseEntity>): Promise<void> {
+  async afterRemove(event: RemoveEvent<any>): Promise<void> {
     if (!event.entity) return;
 
     await this.createAuditLog(
@@ -68,16 +64,20 @@ export class AuditLogSubscriber
 
   private async createAuditLog(
     event:
-      | InsertEvent<BaseEntity>
-      | UpdateEvent<BaseEntity>
-      | SoftRemoveEvent<BaseEntity>
-      | RemoveEvent<BaseEntity>,
+      | InsertEvent<any>
+      | UpdateEvent<any>
+      | SoftRemoveEvent<any>
+      | RemoveEvent<any>,
     action: AuditAction,
     oldValues?: any,
     newValues?: any,
   ): Promise<void> {
     try {
       const tableName = event.metadata.tableName;
+
+      // Não auditar a própria tabela de auditoria (evita loop infinito)
+      if (tableName === 'audit_logs') return;
+
       const recordId = this.getRecordId(event);
 
       if (!recordId) return;
@@ -112,10 +112,10 @@ export class AuditLogSubscriber
 
   private getRecordId(
     event:
-      | InsertEvent<BaseEntity>
-      | UpdateEvent<BaseEntity>
-      | SoftRemoveEvent<BaseEntity>
-      | RemoveEvent<BaseEntity>,
+      | InsertEvent<any>
+      | UpdateEvent<any>
+      | SoftRemoveEvent<any>
+      | RemoveEvent<any>,
   ): string | undefined {
     if (event.entity && 'id' in event.entity) {
       return (event.entity as any).id;
