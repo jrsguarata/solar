@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 import { Concessionaire } from './entities/concessionaire.entity';
 import { CreateConcessionaireDto } from './dto/create-concessionaire.dto';
 import { UpdateConcessionaireDto } from './dto/update-concessionaire.dto';
-import { UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class ConcessionairesService {
@@ -35,13 +34,10 @@ export class ConcessionairesService {
       .leftJoinAndSelect('concessionaire.distributor', 'distributor')
       .leftJoinAndSelect('concessionaire.company', 'company');
 
-    // COADMIN só vê concessionárias da sua empresa
-    if (currentUser.role === UserRole.COADMIN) {
-      queryBuilder.where('concessionaire.companyId = :companyId', {
-        companyId: currentUser.companyId,
-      });
-    }
-    // ADMIN vê todas
+    // Todos os usuários veem apenas concessionárias da sua empresa
+    queryBuilder.where('concessionaire.companyId = :companyId', {
+      companyId: currentUser.companyId,
+    });
 
     return queryBuilder
       .orderBy('concessionaire.createdAt', 'DESC')
@@ -60,11 +56,8 @@ export class ConcessionairesService {
       );
     }
 
-    // COADMIN só pode ver concessionária da sua empresa
-    if (
-      currentUser.role === UserRole.COADMIN &&
-      concessionaire.companyId !== currentUser.companyId
-    ) {
+    // Usuários só podem ver concessionária da sua empresa
+    if (concessionaire.companyId !== currentUser.companyId) {
       throw new ForbiddenException('Acesso negado a esta concessionária');
     }
 
