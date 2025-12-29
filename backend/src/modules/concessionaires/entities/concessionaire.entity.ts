@@ -3,7 +3,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  RelationId,
   Index,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
@@ -12,21 +11,21 @@ import { Distributor } from '../../distributors/entities/distributor.entity';
 
 @Entity('concessionaires')
 export class Concessionaire extends BaseEntity {
+  @Column({ name: 'distributor_id' })
+  @Index()
+  distributorId: string;
+
   @ManyToOne(() => Distributor, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'distributor_id' })
   distributor: Distributor;
 
-  @RelationId((concessionaire: Concessionaire) => concessionaire.distributor)
+  @Column({ name: 'company_id' })
   @Index()
-  distributorId: string;
+  companyId: string;
 
   @ManyToOne(() => Company, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'company_id' })
   company: Company;
-
-  @RelationId((concessionaire: Concessionaire) => concessionaire.company)
-  @Index()
-  companyId: string;
 
   @Column({ length: 14 })
   @Index()

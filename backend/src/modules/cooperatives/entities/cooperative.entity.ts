@@ -3,7 +3,6 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  RelationId,
   Index,
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
@@ -11,13 +10,13 @@ import { Company } from '../../companies/entities/company.entity';
 
 @Entity('cooperatives')
 export class Cooperative extends BaseEntity {
+  @Column({ name: 'company_id' })
+  @Index()
+  companyId: string;
+
   @ManyToOne(() => Company, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'company_id' })
   company: Company;
-
-  @RelationId((cooperative: Cooperative) => cooperative.company)
-  @Index()
-  companyId: string;
 
   @Column({ length: 14 })
   @Index()
