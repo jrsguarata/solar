@@ -10,6 +10,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { DistributorsModule } from './modules/distributors/distributors.module';
 import { MailModule } from './modules/mail/mail.module';
+import { ConcessionairesModule } from './modules/concessionaires/concessionaires.module';
 import { validate } from './config/env.validation';
 
 @Module({
@@ -26,6 +27,7 @@ import { validate } from './config/env.validation';
     ContactsModule,
     DistributorsModule,
     MailModule,
+    ConcessionairesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

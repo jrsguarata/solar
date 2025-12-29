@@ -5,3 +5,4 @@ export * from './Company';
 export * from './Distributor';
 export * from './Contact';
 export * from './AuditLog';
+export * from './Concessionaire';

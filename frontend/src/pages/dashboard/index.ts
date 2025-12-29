@@ -4,3 +4,4 @@ export { CompaniesPage } from './CompaniesPage';
 export { ProfilePage } from './ProfilePage';
 export { PasswordPage } from './PasswordPage';
 export { AuditLogsPage } from './AuditLogsPage';
+export { ConcessionairesPage } from './ConcessionairesPage';

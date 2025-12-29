@@ -5,4 +5,5 @@ export { default as companyService } from './company.service';
 export { default as distributorService } from './distributor.service';
 export { default as contactService } from './contact.service';
 export { default as auditLogService } from './auditLog.service';
+export { default as cessionaireService } from './concessionaire.service';
 export { default as api, getErrorMessage } from './api';

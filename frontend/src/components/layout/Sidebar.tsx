@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, Users, UserCircle, Lock, FileText } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, UserCircle, Lock, FileText, Zap } from 'lucide-react';
 
 const menuItems = [
   {
@@ -16,6 +16,11 @@ const menuItems = [
     path: '/dashboard/users',
     icon: Users,
     label: 'Usuários',
+  },
+  {
+    path: '/dashboard/concessionaires',
+    icon: Zap,
+    label: 'Concessionárias',
   },
   {
     path: '/dashboard/audit-logs',
