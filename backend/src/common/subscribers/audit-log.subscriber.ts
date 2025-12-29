@@ -173,8 +173,20 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
 
     const sanitized: Record<string, any> = {};
 
+    // Lista de campos duplicados em snake_case que devem ser removidos
+    // (mantemos apenas as versões camelCase)
+    const snakeCaseFieldsToRemove = [
+      'updated_by',
+      'deactivated_by',
+    ];
+
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
+        // Ignorar campos snake_case duplicados
+        if (snakeCaseFieldsToRemove.includes(key)) {
+          continue;
+        }
+
         // Ignorar relações carregadas (objetos aninhados que terminam com "User" ou são objetos de relação)
         if (this.isRelationField(key, values[key])) {
           continue;
