@@ -7,12 +7,16 @@ interface RequestContext {
 export class RequestContextService {
   private static asyncLocalStorage = new AsyncLocalStorage<RequestContext>();
 
-  static run(userId: string | undefined, callback: () => void): void {
-    this.asyncLocalStorage.run({ userId }, callback);
+  static run<T>(userId: string | undefined, callback: () => T): T {
+    return this.asyncLocalStorage.run({ userId }, callback);
   }
 
   static getUserId(): string | undefined {
     const store = this.asyncLocalStorage.getStore();
     return store?.userId;
+  }
+
+  static getStore(): RequestContext | undefined {
+    return this.asyncLocalStorage.getStore();
   }
 }

@@ -53,6 +53,9 @@ export class User extends BaseEntityWithoutDelete {
   @Column({ name: 'deactivated_at', nullable: true })
   deactivatedAt?: Date;
 
+  @Column({ name: 'deactivated_by', type: 'uuid', nullable: true })
+  deactivated_by?: string;
+
   @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'deactivated_by' })
   deactivatedByUser?: User;

@@ -32,7 +32,10 @@ export class ConcessionairesService {
     const queryBuilder = this.concessionairesRepository
       .createQueryBuilder('concessionaire')
       .leftJoinAndSelect('concessionaire.distributor', 'distributor')
-      .leftJoinAndSelect('concessionaire.company', 'company');
+      .leftJoinAndSelect('concessionaire.company', 'company')
+      .leftJoinAndSelect('concessionaire.createdByUser', 'createdByUser')
+      .leftJoinAndSelect('concessionaire.updatedByUser', 'updatedByUser')
+      .leftJoinAndSelect('concessionaire.deletedByUser', 'deletedByUser');
 
     // Todos os usuários veem apenas concessionárias da sua empresa
     queryBuilder.where('concessionaire.companyId = :companyId', {
@@ -47,7 +50,7 @@ export class ConcessionairesService {
   async findOne(id: string, currentUser: any): Promise<Concessionaire> {
     const concessionaire = await this.concessionairesRepository.findOne({
       where: { id },
-      relations: ['distributor', 'company'],
+      relations: ['distributor', 'company', 'createdByUser', 'updatedByUser', 'deletedByUser'],
     });
 
     if (!concessionaire) {

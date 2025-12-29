@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
+import { ConfirmModal } from '../../components/modals/ConfirmModal';
 import { cessionaireService, distributorService } from '../../services';
 import type { Concessionaire, Distributor } from '../../models';
 
@@ -502,29 +503,15 @@ export function ConcessionairesPage() {
 
       {/* Modal de Confirmação de Exclusão */}
       {showDeleteModal && selectedConcessionaire && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Excluir Concessionária</h3>
-            <p className="text-gray-600 mb-6">
-              Tem certeza que deseja excluir a concessionária com CNPJ{' '}
-              <strong>{formatCNPJ(selectedConcessionaire.cnpj)}</strong>? Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                Excluir
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmModal
+          title="Excluir Concessionária"
+          message={`Tem certeza que deseja excluir a concessionária com CNPJ ${formatCNPJ(selectedConcessionaire.cnpj)}? Esta ação não pode ser desfeita.`}
+          confirmText="Excluir"
+          cancelText="Cancelar"
+          variant="danger"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteModal(false)}
+        />
       )}
 
       {/* Modal de Visualização */}
@@ -591,28 +578,108 @@ export function ConcessionairesPage() {
                 </div>
               </div>
 
+              {/* Empresa */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Empresa</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-lg font-medium text-gray-900">
+                    {selectedConcessionaire.company?.name || 'N/A'}
+                  </p>
+                </div>
+              </div>
+
               {/* Informações de Auditoria */}
-              {selectedConcessionaire.createdAt && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Informações do Sistema</h4>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Criado em:</span>
-                      <span className="text-gray-900">
-                        {new Date(selectedConcessionaire.createdAt).toLocaleString('pt-BR')}
-                      </span>
-                    </div>
-                    {selectedConcessionaire.updatedAt && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Atualizado em:</span>
-                        <span className="text-gray-900">
-                          {new Date(selectedConcessionaire.updatedAt).toLocaleString('pt-BR')}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Informações do Sistema</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">ID</label>
+                    <p className="text-sm text-gray-900 font-mono">{selectedConcessionaire.id}</p>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Criação</label>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-sm text-gray-500">Criado em:</span>
+                        <span className="text-sm text-gray-900 text-right">
+                          {new Date(selectedConcessionaire.createdAt).toLocaleString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </span>
                       </div>
-                    )}
+                      {selectedConcessionaire.createdByUser && (
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Criado por:</span>
+                          <span className="text-sm text-gray-900 text-right font-medium">
+                            {selectedConcessionaire.createdByUser.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
+
+                  {selectedConcessionaire.updatedAt && (
+                    <div className="border-t border-gray-200 pt-3">
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Atualização</label>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Atualizado em:</span>
+                          <span className="text-sm text-gray-900 text-right">
+                            {new Date(selectedConcessionaire.updatedAt).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        {selectedConcessionaire.updatedByUser && (
+                          <div className="flex justify-between items-start">
+                            <span className="text-sm text-gray-500">Atualizado por:</span>
+                            <span className="text-sm text-gray-900 text-right font-medium">
+                              {selectedConcessionaire.updatedByUser.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedConcessionaire.deletedAt && (
+                    <div className="border-t border-gray-200 pt-3">
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Exclusão</label>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Excluído em:</span>
+                          <span className="text-sm text-red-600 text-right">
+                            {new Date(selectedConcessionaire.deletedAt).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        {selectedConcessionaire.deletedByUser && (
+                          <div className="flex justify-between items-start">
+                            <span className="text-sm text-gray-500">Excluído por:</span>
+                            <span className="text-sm text-red-600 text-right font-medium">
+                              {selectedConcessionaire.deletedByUser.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">

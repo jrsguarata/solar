@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, UserCheck, UserX, Filter } from 'lucide-react';
+import { Plus, Search, Edit2, UserCheck, UserX, Filter, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { userService, companyService } from '../../services';
+import { formatMobile } from '../../utils/formatters';
 import type { User, Company, UserRole } from '../../models';
 import { UserFormModal } from '../../components/modals/UserFormModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
@@ -24,6 +25,9 @@ export function UsersPage() {
   // Modal states
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [showActivateModal, setShowActivateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -92,6 +96,11 @@ export function UsersPage() {
     setShowFormModal(true);
   };
 
+  const handleView = (user: User) => {
+    setSelectedUser(user);
+    setShowViewModal(true);
+  };
+
   // const handleDelete = (user: User) => {
   //   setSelectedUser(user);
   //   setShowDeleteModal(true);
@@ -109,16 +118,36 @@ export function UsersPage() {
     }
   };
 
-  const handleToggleStatus = async (user: User) => {
+  const handleToggleStatus = (user: User) => {
+    setSelectedUser(user);
+    if (user.isActive) {
+      setShowDeactivateModal(true);
+    } else {
+      setShowActivateModal(true);
+    }
+  };
+
+  const confirmDeactivate = async () => {
+    if (!selectedUser) return;
+
     try {
-      if (user.isActive) {
-        await userService.deactivate(user.id);
-      } else {
-        await userService.activate(user.id);
-      }
+      await userService.deactivate(selectedUser.id);
       await loadData();
+      setShowDeactivateModal(false);
     } catch (error) {
-      console.error('Erro ao alterar status do usuário:', error);
+      console.error('Erro ao desativar usuário:', error);
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!selectedUser) return;
+
+    try {
+      await userService.activate(selectedUser.id);
+      await loadData();
+      setShowActivateModal(false);
+    } catch (error) {
+      console.error('Erro ao ativar usuário:', error);
     }
   };
 
@@ -294,6 +323,13 @@ export function UsersPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
                           <button
+                            onClick={() => handleView(user)}
+                            className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                            title="Visualizar"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleEdit(user)}
                             className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                             title="Editar"
@@ -357,6 +393,236 @@ export function UsersPage() {
           cancelText="Cancelar"
           onConfirm={confirmDelete}
           onCancel={() => setShowDeleteModal(false)}
+        />
+      )}
+
+      {showViewModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Detalhes do Usuário</h3>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Informações Pessoais */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+                  Informações Pessoais
+                </h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">
+                      Nome
+                    </label>
+                    <p className="text-sm text-gray-900 mt-1">{selectedUser.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">
+                      Email
+                    </label>
+                    <p className="text-sm text-gray-900 mt-1">{selectedUser.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">
+                      Celular
+                    </label>
+                    <p className="text-sm text-gray-900 mt-1">{formatMobile(selectedUser.mobile)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Perfil e Acesso */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+                  Perfil e Acesso
+                </h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">
+                      Perfil
+                    </label>
+                    <p className="mt-1">
+                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {selectedUser.role}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">
+                      Empresa
+                    </label>
+                    <p className="text-sm text-gray-900 mt-1">
+                      {selectedUser.company?.name || getCompanyName(selectedUser.companyId) || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase">
+                      Status
+                    </label>
+                    <p className="mt-1">
+                      <span
+                        className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                          selectedUser.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {selectedUser.isActive ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informações do Sistema */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+                  Informações do Sistema
+                </h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">ID</label>
+                    <p className="text-sm text-gray-900 font-mono">{selectedUser.id}</p>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Criação</label>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-sm text-gray-500">Criado em:</span>
+                        <span className="text-sm text-gray-900 text-right">
+                          {new Date(selectedUser.createdAt).toLocaleString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      {selectedUser.createdByUser && (
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Criado por:</span>
+                          <span className="text-sm text-gray-900 text-right font-medium">
+                            {selectedUser.createdByUser.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedUser.updatedAt && (
+                    <div className="border-t border-gray-200 pt-3">
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Atualização</label>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Atualizado em:</span>
+                          <span className="text-sm text-gray-900 text-right">
+                            {new Date(selectedUser.updatedAt).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        {selectedUser.updatedByUser && (
+                          <div className="flex justify-between items-start">
+                            <span className="text-sm text-gray-500">Atualizado por:</span>
+                            <span className="text-sm text-gray-900 text-right font-medium">
+                              {selectedUser.updatedByUser.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedUser.deactivatedAt && (
+                    <div className="border-t border-gray-200 pt-3">
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Desativação</label>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Desativado em:</span>
+                          <span className="text-sm text-red-600 text-right">
+                            {new Date(selectedUser.deactivatedAt).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        {selectedUser.deactivatedByUser && (
+                          <div className="flex justify-between items-start">
+                            <span className="text-sm text-gray-500">Desativado por:</span>
+                            <span className="text-sm text-red-600 text-right font-medium">
+                              {selectedUser.deactivatedByUser.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação - Desativar */}
+      {showDeactivateModal && selectedUser && (
+        <ConfirmModal
+          title="Desativar Usuário"
+          message={`Tem certeza que deseja desativar o usuário "${selectedUser.name}"? O usuário não poderá mais acessar o sistema.`}
+          confirmText="Desativar"
+          cancelText="Cancelar"
+          variant="warning"
+          onConfirm={confirmDeactivate}
+          onCancel={() => setShowDeactivateModal(false)}
+        />
+      )}
+
+      {/* Modal de Confirmação - Ativar */}
+      {showActivateModal && selectedUser && (
+        <ConfirmModal
+          title="Ativar Usuário"
+          message={`Tem certeza que deseja ativar o usuário "${selectedUser.name}"? O usuário poderá acessar o sistema novamente.`}
+          confirmText="Ativar"
+          cancelText="Cancelar"
+          variant="info"
+          onConfirm={confirmActivate}
+          onCancel={() => setShowActivateModal(false)}
         />
       )}
     </DashboardLayout>

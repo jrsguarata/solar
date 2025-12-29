@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { userService } from '../../services';
+import { useAuth } from '../../presenters/useAuth';
+import { formatMobile, unformatMobile } from '../../utils/formatters';
 import type { User, Company, UserRole, CreateUserDto, UpdateUserDto } from '../../models';
 
 interface UserFormModalProps {
@@ -12,6 +14,8 @@ interface UserFormModalProps {
 
 export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormModalProps) {
   const isEditing = !!user;
+  const { getCurrentUser } = useAuth();
+  const currentUser = getCurrentUser();
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -26,10 +30,21 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    // Se for o campo mobile, aplicar máscara
+    if (name === 'mobile') {
+      const formatted = formatMobile(value);
+      setFormData({
+        ...formData,
+        mobile: formatted,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +59,7 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
         const updateData: UpdateUserDto = {
           name: formData.name,
           email: formData.email,
-          mobile: formData.mobile,
+          mobile: unformatMobile(formData.mobile), // Remove máscara antes de enviar
           role: formData.role,
           companyId: formData.companyId || undefined,
         };
@@ -54,7 +69,7 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
         const createData: CreateUserDto = {
           name: formData.name,
           email: formData.email,
-          mobile: formData.mobile,
+          mobile: unformatMobile(formData.mobile), // Remove máscara antes de enviar
           role: formData.role,
           password: formData.password,
           companyId: formData.companyId || undefined,
@@ -159,20 +174,24 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
               <option value="USER">Usuário</option>
               <option value="OPERATOR">Operador</option>
               <option value="COADMIN">CoAdmin</option>
-              <option value="ADMIN">Admin</option>
+              {/* Ocultar opção ADMIN se usuário logado for COADMIN */}
+              {currentUser?.role !== 'COADMIN' && (
+                <option value="ADMIN">Admin</option>
+              )}
             </select>
           </div>
 
           {/* Empresa */}
           <div>
             <label htmlFor="companyId" className="block text-sm font-medium text-gray-700 mb-1">
-              Empresa
+              Empresa {currentUser?.role === 'COADMIN' ? '*' : ''}
             </label>
             <select
               id="companyId"
               name="companyId"
               value={formData.companyId}
               onChange={handleChange}
+              required={currentUser?.role === 'COADMIN'}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Nenhuma</option>
@@ -183,7 +202,9 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              Opcional. ADMIN pode não ter empresa.
+              {currentUser?.role === 'COADMIN'
+                ? 'Obrigatório para COADMIN.'
+                : 'Opcional. ADMIN pode não ter empresa.'}
             </p>
           </div>
 

@@ -39,12 +39,16 @@ export class CompaniesService {
 
   async findAll(): Promise<Company[]> {
     return this.companiesRepository.find({
+      relations: ['createdByUser', 'updatedByUser', 'deletedByUser'],
       order: { name: 'ASC' },
     });
   }
 
   async findOne(id: string): Promise<Company> {
-    const company = await this.companiesRepository.findOne({ where: { id } });
+    const company = await this.companiesRepository.findOne({
+      where: { id },
+      relations: ['createdByUser', 'updatedByUser', 'deletedByUser'],
+    });
 
     if (!company) {
       throw new NotFoundException(`Empresa com ID ${id} não encontrada`);

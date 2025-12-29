@@ -1,11 +1,13 @@
 import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  Column,
   ManyToOne,
   JoinColumn,
   RelationId,
+  BeforeUpdate,
 } from 'typeorm';
+import { RequestContextService } from '../context/request-context';
 
 export abstract class BaseEntityWithoutDelete {
   @PrimaryGeneratedColumn('uuid')
@@ -14,20 +16,47 @@ export abstract class BaseEntityWithoutDelete {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL', lazy: true })
+  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'created_by' })
-  createdByUser?: Promise<any>;
+  createdByUser?: any;
 
   @RelationId((entity: BaseEntityWithoutDelete) => entity.createdByUser)
   createdBy?: string;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @Column({ name: 'updated_at', type: 'timestamp', nullable: true, default: null })
+  updatedAt?: Date;
 
-  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL', lazy: true })
+  @Column({ name: 'updated_by', type: 'uuid', nullable: true })
+  updated_by?: string;
+
+  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'updated_by' })
-  updatedByUser?: Promise<any>;
+  updatedByUser?: any;
 
   @RelationId((entity: BaseEntityWithoutDelete) => entity.updatedByUser)
   updatedBy?: string;
+
+  @BeforeUpdate()
+  updateAuditFields() {
+    const userId = RequestContextService.getUserId();
+
+    console.log('[BaseEntityWithoutDelete @BeforeUpdate] Setting audit fields', {
+      entityName: this.constructor.name,
+      userId,
+      currentUpdatedBy: this.updatedBy,
+      currentUpdatedAt: this.updatedAt,
+    });
+
+    if (userId) {
+      this.updatedBy = userId;
+      this.updatedAt = new Date();
+
+      console.log('[BaseEntityWithoutDelete @BeforeUpdate] Audit fields set', {
+        updatedBy: this.updatedBy,
+        updatedAt: this.updatedAt,
+      });
+    } else {
+      console.log('[BaseEntityWithoutDelete @BeforeUpdate] WARNING: No userId found in context');
+    }
+  }
 }

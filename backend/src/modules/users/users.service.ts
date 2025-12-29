@@ -10,6 +10,7 @@ import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CompaniesService } from '../companies/companies.service';
+import { RequestContextService } from '../../common/context/request-context';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -84,13 +85,19 @@ export class UsersService {
   async findAll(currentUser?: any): Promise<User[]> {
     // ADMIN vê todos os usuários
     if (!currentUser || currentUser.role === UserRole.ADMIN) {
-      return this.usersRepository.find();
+      return this.usersRepository.find({
+        relations: ['company', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
+      });
     }
 
     // COADMIN, OPERATOR e USER veem apenas usuários da sua empresa
     if (currentUser.companyId) {
       return this.usersRepository
         .createQueryBuilder('user')
+        .leftJoinAndSelect('user.company', 'company')
+        .leftJoinAndSelect('user.createdByUser', 'createdByUser')
+        .leftJoinAndSelect('user.updatedByUser', 'updatedByUser')
+        .leftJoinAndSelect('user.deactivatedByUser', 'deactivatedByUser')
         .where('user.company_id = :companyId', { companyId: currentUser.companyId })
         .getMany();
     }
@@ -100,7 +107,10 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['company', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
+    });
 
     if (!user) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
@@ -120,14 +130,35 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
+    // Verificar se usuário existe
+    await this.findOne(id);
+    const userId = RequestContextService.getUserId();
 
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
+    // SOLUÇÃO: Usar save() do repositório mas forçando a inclusão dos campos de auditoria
+    // Carregar o usuário novamente
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
+    }
+
+    // Aplicar mudanças do DTO
     Object.assign(user, updateUserDto);
-    return this.usersRepository.save(user);
+
+    // CRITICAL: Setar campos de auditoria DIRETAMENTE nas propriedades de coluna
+    // Não usar as relações, usar as colunas diretamente
+    (user as any).updated_by = userId;
+    (user as any).updated_at = new Date();
+
+    // Salvar usando save() que vai incluir todos os campos modificados
+    await this.usersRepository.save(user);
+
+    // Retornar o usuário atualizado com todas as relações
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
@@ -142,13 +173,18 @@ export class UsersService {
       throw new BadRequestException('Usuário já está desativado');
     }
 
+    const userId = RequestContextService.getUserId();
+    const userIdToSet = deactivatedBy || userId;
+
+    // SOLUÇÃO: Setar campos diretamente usando as propriedades de coluna
+    // REGRA DE AUDITORIA: Apenas is_active, deactivated_at e deactivated_by devem ser atualizados
     user.isActive = false;
     user.deactivatedAt = new Date();
-    if (deactivatedBy) {
-      user.deactivatedBy = deactivatedBy;
-    }
+    (user as any).deactivated_by = userIdToSet;
 
-    return this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+
+    return this.findOne(id);
   }
 
   async activate(id: string): Promise<User> {
@@ -158,11 +194,21 @@ export class UsersService {
       throw new BadRequestException('Usuário já está ativo');
     }
 
-    user.isActive = true;
-    user.deactivatedAt = undefined;
-    user.deactivatedBy = undefined;
+    // SOLUÇÃO: Usar QueryBuilder para garantir que os campos sejam limpos
+    // Todos os campos devem ser incluídos em um único objeto .set()
+    // Usar () => 'NULL' para valores nulos que precisam ser explicitamente setados
+    await this.usersRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({
+        isActive: true,
+        deactivatedAt: () => 'NULL',
+        deactivated_by: () => 'NULL',
+      } as any)
+      .where('id = :id', { id })
+      .execute();
 
-    return this.usersRepository.save(user);
+    return this.findOne(id);
   }
 
   async changePassword(

@@ -312,23 +312,93 @@ export function CompaniesPage() {
               {/* Informações de Auditoria */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Informações do Sistema</h4>
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">ID:</span>
-                    <span className="text-gray-900 font-mono text-xs">{selectedCompany.id}</span>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">ID</label>
+                    <p className="text-sm text-gray-900 font-mono">{selectedCompany.id}</p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Criado em:</span>
-                    <span className="text-gray-900">
-                      {new Date(selectedCompany.createdAt).toLocaleString('pt-BR')}
-                    </span>
+
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Criação</label>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-sm text-gray-500">Criado em:</span>
+                        <span className="text-sm text-gray-900 text-right">
+                          {new Date(selectedCompany.createdAt).toLocaleString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      {selectedCompany.createdByUser && (
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Criado por:</span>
+                          <span className="text-sm text-gray-900 text-right font-medium">
+                            {selectedCompany.createdByUser.name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Atualizado em:</span>
-                    <span className="text-gray-900">
-                      {new Date(selectedCompany.updatedAt).toLocaleString('pt-BR')}
-                    </span>
-                  </div>
+
+                  {selectedCompany.updatedAt && (
+                    <div className="border-t border-gray-200 pt-3">
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Atualização</label>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Atualizado em:</span>
+                          <span className="text-sm text-gray-900 text-right">
+                            {new Date(selectedCompany.updatedAt).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        {selectedCompany.updatedByUser && (
+                          <div className="flex justify-between items-start">
+                            <span className="text-sm text-gray-500">Atualizado por:</span>
+                            <span className="text-sm text-gray-900 text-right font-medium">
+                              {selectedCompany.updatedByUser.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedCompany.deletedAt && (
+                    <div className="border-t border-gray-200 pt-3">
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Exclusão</label>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm text-gray-500">Excluído em:</span>
+                          <span className="text-sm text-red-600 text-right">
+                            {new Date(selectedCompany.deletedAt).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        {selectedCompany.deletedByUser && (
+                          <div className="flex justify-between items-start">
+                            <span className="text-sm text-gray-500">Excluído por:</span>
+                            <span className="text-sm text-red-600 text-right font-medium">
+                              {selectedCompany.deletedByUser.name}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

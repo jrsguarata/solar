@@ -1,12 +1,14 @@
 import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  Column,
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
   RelationId,
+  BeforeUpdate,
 } from 'typeorm';
+import { RequestContextService } from '../context/request-context';
 
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -15,19 +17,22 @@ export abstract class BaseEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL', lazy: true })
+  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'created_by' })
-  createdByUser?: Promise<any>;
+  createdByUser?: any;
 
   @RelationId((entity: BaseEntity) => entity.createdByUser)
   createdBy?: string;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @Column({ name: 'updated_at', type: 'timestamp', nullable: true, default: null })
+  updatedAt?: Date;
 
-  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL', lazy: true })
+  @Column({ name: 'updated_by', type: 'uuid', nullable: true })
+  updated_by?: string;
+
+  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'updated_by' })
-  updatedByUser?: Promise<any>;
+  updatedByUser?: any;
 
   @RelationId((entity: BaseEntity) => entity.updatedByUser)
   updatedBy?: string;
@@ -35,10 +40,34 @@ export abstract class BaseEntity {
   @DeleteDateColumn({ name: 'deleted_at' })
   deletedAt?: Date;
 
-  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL', lazy: true })
+  @ManyToOne('User', { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'deleted_by' })
-  deletedByUser?: Promise<any>;
+  deletedByUser?: any;
 
   @RelationId((entity: BaseEntity) => entity.deletedByUser)
   deletedBy?: string;
+
+  @BeforeUpdate()
+  updateAuditFields() {
+    const userId = RequestContextService.getUserId();
+
+    console.log('[BaseEntity @BeforeUpdate] Setting audit fields', {
+      entityName: this.constructor.name,
+      userId,
+      currentUpdatedBy: this.updatedBy,
+      currentUpdatedAt: this.updatedAt,
+    });
+
+    if (userId) {
+      this.updatedBy = userId;
+      this.updatedAt = new Date();
+
+      console.log('[BaseEntity @BeforeUpdate] Audit fields set', {
+        updatedBy: this.updatedBy,
+        updatedAt: this.updatedAt,
+      });
+    } else {
+      console.log('[BaseEntity @BeforeUpdate] WARNING: No userId found in context');
+    }
+  }
 }

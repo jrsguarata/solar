@@ -175,11 +175,49 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
 
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
+        // Ignorar relações carregadas (objetos aninhados que terminam com "User" ou são objetos de relação)
+        if (this.isRelationField(key, values[key])) {
+          continue;
+        }
         sanitized[key] = this.sanitizeField(key, values[key]);
       }
     }
 
     return sanitized;
+  }
+
+  private isRelationField(fieldName: string, value: any): boolean {
+    // Lista de campos que são relações e devem ser ignorados
+    const relationFields = [
+      'createdByUser',
+      'updatedByUser',
+      'deletedByUser',
+      'deactivatedByUser',
+      'company',
+      'user',
+      'distributor',
+      'concessionaire',
+    ];
+
+    // Se o campo está na lista de relações conhecidas
+    if (relationFields.includes(fieldName)) {
+      return true;
+    }
+
+    // Se o valor é um objeto (não array, não null, não Date) e tem propriedade 'id'
+    // provavelmente é uma relação carregada
+    if (
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      !(value instanceof Date) &&
+      'id' in value &&
+      Object.keys(value).length > 1
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   private sanitizeField(fieldName: string, value: any): any {

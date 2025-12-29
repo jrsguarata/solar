@@ -15,8 +15,16 @@ export interface User {
   role: UserRole;
   isActive: boolean;
   companyId?: string;
+  company?: { id: string; name: string };
   createdAt: string;
+  createdBy?: string;
+  createdByUser?: { id: string; name: string };
   updatedAt: string;
+  updatedBy?: string;
+  updatedByUser?: { id: string; name: string };
+  deactivatedAt?: string;
+  deactivatedBy?: string;
+  deactivatedByUser?: { id: string; name: string };
 }
 
 // Interface para criação de usuário
