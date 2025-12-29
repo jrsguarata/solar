@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { Sidebar } from './Sidebar';
 

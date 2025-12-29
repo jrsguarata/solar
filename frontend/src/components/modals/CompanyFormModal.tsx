@@ -13,7 +13,6 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
   const isEditing = !!company;
 
   const [formData, setFormData] = useState({
-    code: company?.code || '',
     name: company?.name || '',
     cnpj: company?.cnpj || '',
   });
@@ -70,7 +69,6 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
       if (isEditing) {
         // Update
         const updateData: UpdateCompanyDto = {
-          code: formData.code,
           name: formData.name,
           cnpj,
         };
@@ -78,7 +76,6 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
       } else {
         // Create
         const createData: CreateCompanyDto = {
-          code: formData.code,
           name: formData.name,
           cnpj,
         };
@@ -116,24 +113,6 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
               {error}
             </div>
           )}
-
-          {/* Código */}
-          <div>
-            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
-              Código *
-            </label>
-            <input
-              type="text"
-              id="code"
-              name="code"
-              required
-              value={formData.code}
-              onChange={handleChange}
-              placeholder="COMP001"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <p className="text-xs text-gray-500 mt-1">Código único da empresa</p>
-          </div>
 
           {/* Nome */}
           <div>

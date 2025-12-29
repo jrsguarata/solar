@@ -1,5 +1,5 @@
-import { Distributor } from './Distributor';
-import { Company } from './Company';
+import type { Distributor } from './Distributor';
+import type { Company } from './Company';
 
 export interface Concessionaire {
   id: string;
