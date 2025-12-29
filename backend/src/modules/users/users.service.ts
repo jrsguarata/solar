@@ -194,9 +194,8 @@ export class UsersService {
       throw new BadRequestException('Usuário já está ativo');
     }
 
-    // SOLUÇÃO: Usar QueryBuilder para garantir que os campos sejam limpos
-    // Todos os campos devem ser incluídos em um único objeto .set()
-    // Usar () => 'NULL' para valores nulos que precisam ser explicitamente setados
+    // SOLUÇÃO: Usar QueryBuilder para garantir que NULL seja setado no banco
+    // Depois registrar manualmente no audit log com valores corretos
     await this.usersRepository
       .createQueryBuilder()
       .update(User)

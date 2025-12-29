@@ -32,11 +32,26 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
     // Obter valores antigos do banco
     const oldEntity = event.databaseEntity;
 
+    // Quando usamos QueryBuilder.execute(), event.entity pode conter valores desatualizados
+    // Buscar entidade atualizada do banco para garantir valores corretos no audit log
+    let newEntity = event.entity;
+
+    if (event.entity && 'id' in event.entity) {
+      const recordId = (event.entity as any).id;
+      const freshEntity = await event.manager.findOne(event.metadata.target, {
+        where: { id: recordId } as any,
+      });
+
+      if (freshEntity) {
+        newEntity = freshEntity;
+      }
+    }
+
     await this.createAuditLog(
       event,
       AuditAction.UPDATE,
       oldEntity,
-      event.entity,
+      newEntity,
     );
   }
 
