@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { cessionaireService, distributorService } from '../../services';
@@ -21,6 +21,7 @@ export function ConcessionairesPage() {
   // Modal states
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedConcessionaire, setSelectedConcessionaire] = useState<Concessionaire | null>(null);
 
   // Form state
@@ -135,6 +136,11 @@ export function ConcessionairesPage() {
   const handleDelete = (concessionaire: Concessionaire) => {
     setSelectedConcessionaire(concessionaire);
     setShowDeleteModal(true);
+  };
+
+  const handleView = (concessionaire: Concessionaire) => {
+    setSelectedConcessionaire(concessionaire);
+    setShowViewModal(true);
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -307,6 +313,13 @@ export function ConcessionairesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleView(concessionaire)}
+                            className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                            title="Visualizar"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleEdit(concessionaire)}
                             className="p-1 text-blue-600 hover:bg-blue-50 rounded"
@@ -508,6 +521,106 @@ export function ConcessionairesPage() {
                 className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
               >
                 Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Visualização */}
+      {showViewModal && selectedConcessionaire && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Detalhes da Concessionária
+              </h3>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Informações da Distribuidora */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Distribuidora</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-lg font-medium text-gray-900">
+                    {selectedConcessionaire.distributor?.name || 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              {/* CNPJ */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">CNPJ</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-lg font-mono text-gray-900">
+                    {formatCNPJ(selectedConcessionaire.cnpj)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Endereço */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Endereço Completo</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-20">Rua:</span>
+                    <span className="text-gray-900">{selectedConcessionaire.streetName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-20">Cidade:</span>
+                    <span className="text-gray-900">{selectedConcessionaire.city}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-20">Estado:</span>
+                    <span className="text-gray-900">{selectedConcessionaire.state}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-20">CEP:</span>
+                    <span className="text-gray-900 font-mono">
+                      {formatZipCode(selectedConcessionaire.zipCode)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informações de Auditoria */}
+              {selectedConcessionaire.createdAt && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Informações do Sistema</h4>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Criado em:</span>
+                      <span className="text-gray-900">
+                        {new Date(selectedConcessionaire.createdAt).toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                    {selectedConcessionaire.updatedAt && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Atualizado em:</span>
+                        <span className="text-gray-900">
+                          {new Date(selectedConcessionaire.updatedAt).toLocaleString('pt-BR')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="w-full px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Fechar
               </button>
             </div>
           </div>
