@@ -92,10 +92,10 @@ export function UsersPage() {
     setShowFormModal(true);
   };
 
-  const handleDelete = (user: User) => {
-    setSelectedUser(user);
-    setShowDeleteModal(true);
-  };
+  // const handleDelete = (user: User) => {
+  //   setSelectedUser(user);
+  //   setShowDeleteModal(true);
+  // };
 
   const confirmDelete = async () => {
     if (!selectedUser) return;
