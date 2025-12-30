@@ -20,7 +20,13 @@ const menuItems: MenuItem[] = [
     path: '/dashboard/companies',
     icon: Building2,
     label: 'Empresas',
-    roles: [UserRole.ADMIN], // Apenas ADMIN
+    roles: [UserRole.ADMIN], // Apenas ADMIN - pode gerenciar todas
+  },
+  {
+    path: '/dashboard/my-company',
+    icon: Building2,
+    label: 'Empresa',
+    roles: [UserRole.COADMIN], // COADMIN vê apenas sua empresa
   },
   {
     path: '/dashboard/users',

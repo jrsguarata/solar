@@ -8,6 +8,7 @@ import { ResetPassword } from './pages/ResetPassword';
 import { DashboardHome } from './pages/dashboard/DashboardHome';
 import { UsersPage } from './pages/dashboard/UsersPage';
 import { CompaniesPage } from './pages/dashboard/CompaniesPage';
+import { MyCompanyPage } from './pages/dashboard/MyCompanyPage';
 import { ProfilePage } from './pages/dashboard/ProfilePage';
 import { PasswordPage } from './pages/dashboard/PasswordPage';
 import { AuditLogsPage } from './pages/dashboard/AuditLogsPage';
@@ -39,6 +40,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/dashboard/users" element={<UsersPage />} />
           <Route path="/dashboard/companies" element={<CompaniesPage />} />
+          <Route path="/dashboard/my-company" element={<MyCompanyPage />} />
           <Route path="/dashboard/plants" element={<PlantsPage />} />
           <Route path="/dashboard/cooperatives" element={<CooperativesPage />} />
           <Route path="/dashboard/concessionaires" element={<ConcessionairesPage />} />
