@@ -38,10 +38,13 @@ export class ConcessionairesService {
       .leftJoinAndSelect('concessionaire.updatedByUser', 'updatedByUser')
       .leftJoinAndSelect('concessionaire.deletedByUser', 'deletedByUser');
 
-    // Todos os usuários veem apenas concessionárias da sua empresa
-    queryBuilder.where('concessionaire.companyId = :companyId', {
-      companyId: currentUser.companyId,
-    });
+    // ADMIN vê todas as concessionárias
+    // Outros perfis veem apenas concessionárias da sua empresa
+    if (currentUser.role !== 'ADMIN' && currentUser.companyId) {
+      queryBuilder.where('concessionaire.companyId = :companyId', {
+        companyId: currentUser.companyId,
+      });
+    }
 
     return queryBuilder
       .orderBy('concessionaire.createdAt', 'DESC')
@@ -60,8 +63,9 @@ export class ConcessionairesService {
       );
     }
 
-    // Usuários só podem ver concessionária da sua empresa
-    if (concessionaire.companyId !== currentUser.companyId) {
+    // ADMIN pode ver qualquer concessionária
+    // Outros perfis só podem ver concessionária da sua empresa
+    if (currentUser.role !== 'ADMIN' && concessionaire.companyId !== currentUser.companyId) {
       throw new ForbiddenException('Acesso negado a esta concessionária');
     }
 

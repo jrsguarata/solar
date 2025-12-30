@@ -5,6 +5,7 @@ import { Pagination } from '../../components/common/Pagination';
 import { plantService } from '../../services';
 import type { Plant } from '../../models';
 import { PlantFormModal } from '../../components/modals/PlantFormModal';
+import { ViewPlantModal } from '../../components/modals/ViewPlantModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
 
 export function PlantsPage() {
@@ -17,6 +18,7 @@ export function PlantsPage() {
 
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   useEffect(() => {
@@ -58,6 +60,11 @@ export function PlantsPage() {
   const handleCreate = () => {
     setSelectedPlant(null);
     setShowFormModal(true);
+  };
+
+  const handleView = (plant: Plant) => {
+    setSelectedPlant(plant);
+    setShowViewModal(true);
   };
 
   const handleEdit = (plant: Plant) => {
@@ -134,6 +141,7 @@ export function PlantsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.city} - {plant.state}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => handleView(plant)} className="p-1 text-gray-600 hover:bg-gray-50 rounded" title="Visualizar"><Eye className="w-4 h-4" /></button>
                           <button onClick={() => handleEdit(plant)} className="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
                           <button onClick={() => handleDelete(plant)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 className="w-4 h-4" /></button>
                         </div>
@@ -153,6 +161,10 @@ export function PlantsPage() {
 
       {showFormModal && (
         <PlantFormModal plant={selectedPlant} onClose={() => setShowFormModal(false)} onSuccess={() => { setShowFormModal(false); loadData(); }} />
+      )}
+
+      {showViewModal && selectedPlant && (
+        <ViewPlantModal plant={selectedPlant} onClose={() => setShowViewModal(false)} />
       )}
 
       {showDeleteModal && selectedPlant && (

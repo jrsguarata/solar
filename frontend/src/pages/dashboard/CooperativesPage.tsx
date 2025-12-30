@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { cooperativeService } from '../../services';
 import type { Cooperative } from '../../models';
 import { CooperativeFormModal } from '../../components/modals/CooperativeFormModal';
+import { ViewCooperativeModal } from '../../components/modals/ViewCooperativeModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
 
 export function CooperativesPage() {
@@ -17,6 +18,7 @@ export function CooperativesPage() {
 
   const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedCooperative, setSelectedCooperative] = useState<Cooperative | null>(null);
 
   useEffect(() => {
@@ -59,6 +61,11 @@ export function CooperativesPage() {
   const handleCreate = () => {
     setSelectedCooperative(null);
     setShowFormModal(true);
+  };
+
+  const handleView = (cooperative: Cooperative) => {
+    setSelectedCooperative(cooperative);
+    setShowViewModal(true);
   };
 
   const handleEdit = (cooperative: Cooperative) => {
@@ -144,6 +151,7 @@ export function CooperativesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.city} - {cooperative.state}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => handleView(cooperative)} className="p-1 text-gray-600 hover:bg-gray-50 rounded" title="Visualizar"><Eye className="w-4 h-4" /></button>
                           <button onClick={() => handleEdit(cooperative)} className="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
                           <button onClick={() => handleDelete(cooperative)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 className="w-4 h-4" /></button>
                         </div>
@@ -163,6 +171,10 @@ export function CooperativesPage() {
 
       {showFormModal && (
         <CooperativeFormModal cooperative={selectedCooperative} onClose={() => setShowFormModal(false)} onSuccess={() => { setShowFormModal(false); loadData(); }} />
+      )}
+
+      {showViewModal && selectedCooperative && (
+        <ViewCooperativeModal cooperative={selectedCooperative} onClose={() => setShowViewModal(false)} />
       )}
 
       {showDeleteModal && selectedCooperative && (
