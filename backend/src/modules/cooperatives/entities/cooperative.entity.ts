@@ -10,6 +10,12 @@ import { Company } from '../../companies/entities/company.entity';
 
 @Entity('cooperatives')
 export class Cooperative extends BaseEntity {
+  @Column({ unique: true })
+  code: string;
+
+  @Column()
+  name: string;
+
   @Column({ name: 'company_id' })
   @Index()
   companyId: string;

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, Users, UserCircle, Lock, FileText, Zap, Factory } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, UserCircle, Lock, FileText, Zap, Factory, Users2 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { UserRole } from '../../models';
 
@@ -31,6 +31,12 @@ const menuItems: MenuItem[] = [
     path: '/dashboard/plants',
     icon: Factory,
     label: 'Usinas',
+    roles: [UserRole.COADMIN, UserRole.OPERATOR, UserRole.USER], // Não ADMIN
+  },
+  {
+    path: '/dashboard/cooperatives',
+    icon: Users2,
+    label: 'Cooperativas',
     roles: [UserRole.COADMIN, UserRole.OPERATOR, UserRole.USER], // Não ADMIN
   },
   {
