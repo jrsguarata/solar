@@ -12,6 +12,7 @@ import { ProfilePage } from './pages/dashboard/ProfilePage';
 import { PasswordPage } from './pages/dashboard/PasswordPage';
 import { AuditLogsPage } from './pages/dashboard/AuditLogsPage';
 import { ConcessionairesPage } from './pages/dashboard/ConcessionairesPage';
+import { PlantsPage } from './pages/dashboard/PlantsPage';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/dashboard/users" element={<UsersPage />} />
           <Route path="/dashboard/companies" element={<CompaniesPage />} />
+          <Route path="/dashboard/plants" element={<PlantsPage />} />
           <Route path="/dashboard/concessionaires" element={<ConcessionairesPage />} />
           <Route path="/dashboard/audit-logs" element={<AuditLogsPage />} />
           <Route path="/dashboard/profile" element={<ProfilePage />} />
