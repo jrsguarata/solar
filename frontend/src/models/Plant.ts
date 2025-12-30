@@ -1,4 +1,5 @@
 import type { Company } from './Company';
+import type { Concessionaire } from './Concessionaire';
 
 // Interface Plant
 export interface Plant {
@@ -8,6 +9,9 @@ export interface Plant {
   companyId: string;
   company?: Company;
   installedPower: number;
+  concessionaryId: string;
+  concessionaire?: Concessionaire;
+  consumerUnit: string;
   zipCode: string;
   streetName: string;
   city: string;
@@ -29,6 +33,8 @@ export interface CreatePlantDto {
   name: string;
   companyId: string;
   installedPower: number;
+  concessionaryId: string;
+  consumerUnit: string;
   zipCode: string;
   streetName: string;
   city: string;
@@ -41,6 +47,8 @@ export interface UpdatePlantDto {
   name?: string;
   companyId?: string;
   installedPower?: number;
+  concessionaryId?: string;
+  consumerUnit?: string;
   zipCode?: string;
   streetName?: string;
   city?: string;

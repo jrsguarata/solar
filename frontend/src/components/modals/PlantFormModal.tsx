@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { plantService, companyService } from '../../services';
-import type { Plant, CreatePlantDto, UpdatePlantDto, Company } from '../../models';
+import { plantService, companyService, cessionaireService } from '../../services';
+import type { Plant, CreatePlantDto, UpdatePlantDto, Company, Concessionaire } from '../../models';
 
 interface PlantFormModalProps {
   plant: Plant | null;
@@ -12,12 +12,15 @@ interface PlantFormModalProps {
 export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProps) {
   const isEditing = !!plant;
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [concessionaires, setConcessionaires] = useState<Concessionaire[]>([]);
 
   const [formData, setFormData] = useState({
     code: plant?.code || '',
     name: plant?.name || '',
     companyId: plant?.companyId || '',
     installedPower: plant?.installedPower?.toString() || '',
+    concessionaryId: plant?.concessionaryId || '',
+    consumerUnit: plant?.consumerUnit || '',
     zipCode: plant?.zipCode || '',
     streetName: plant?.streetName || '',
     city: plant?.city || '',
@@ -29,6 +32,7 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
 
   useEffect(() => {
     loadCompanies();
+    loadConcessionaires();
   }, []);
 
   const loadCompanies = async () => {
@@ -37,6 +41,15 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
       setCompanies(data);
     } catch (err) {
       console.error('Erro ao carregar empresas:', err);
+    }
+  };
+
+  const loadConcessionaires = async () => {
+    try {
+      const data = await cessionaireService.getAll();
+      setConcessionaires(data);
+    } catch (err) {
+      console.error('Erro ao carregar concessionárias:', err);
     }
   };
 
@@ -112,9 +125,23 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
             <input type="text" name="name" required value={formData.name} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Potência Instalada (kWh) *</label>
+              <input type="number" step="0.01" name="installedPower" required value={formData.installedPower} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Concessionária *</label>
+              <select name="concessionaryId" required value={formData.concessionaryId} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg">
+                <option value="">Selecione</option>
+                {concessionaires.map(c => <option key={c.id} value={c.id}>{c.distributor?.name || c.cnpj}</option>)}
+              </select>
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium mb-1">Potência Instalada (kWp) *</label>
-            <input type="number" step="0.01" name="installedPower" required value={formData.installedPower} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
+            <label className="block text-sm font-medium mb-1">Unidade Consumidora *</label>
+            <input type="text" name="consumerUnit" required value={formData.consumerUnit} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" placeholder="Código da unidade consumidora" />
           </div>
 
           <div className="border-t pt-4">

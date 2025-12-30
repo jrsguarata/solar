@@ -18,12 +18,22 @@ export class CreatePlantDto {
   @IsNotEmpty({ message: 'ID da empresa não pode estar vazio' })
   companyId: string;
 
-  @ApiProperty({ example: 150.50, description: 'Potência instalada em kWp' })
+  @ApiProperty({ example: 150.50, description: 'Potência instalada em kWh' })
   @IsNumber({}, { message: 'Potência instalada deve ser um número' })
   @IsNotEmpty({ message: 'Potência instalada não pode estar vazia' })
   @Min(0, { message: 'Potência instalada deve ser maior ou igual a zero' })
   @Type(() => Number)
   installedPower: number;
+
+  @ApiProperty({ example: 'uuid-da-concessionaria', description: 'ID da concessionária' })
+  @IsString({ message: 'ID da concessionária deve ser uma string' })
+  @IsNotEmpty({ message: 'ID da concessionária não pode estar vazio' })
+  concessionaryId: string;
+
+  @ApiProperty({ example: '123456789', description: 'Código da unidade consumidora' })
+  @IsString({ message: 'Unidade consumidora deve ser uma string' })
+  @IsNotEmpty({ message: 'Unidade consumidora não pode estar vazia' })
+  consumerUnit: string;
 
   @ApiProperty({ example: '12345678', description: 'CEP (8 caracteres)' })
   @IsString({ message: 'CEP deve ser uma string' })

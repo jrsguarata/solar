@@ -110,16 +110,18 @@ export function PlantsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Potência (kWp)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Potência (kWh)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concessionária</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Un. Consumidora</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cidade/UF</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y">
                 {loading ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
+                  <tr><td colSpan={8} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
                 ) : filteredPlants.length === 0 ? (
-                  <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-500">Nenhuma usina encontrada</td></tr>
+                  <tr><td colSpan={8} className="px-6 py-12 text-center text-gray-500">Nenhuma usina encontrada</td></tr>
                 ) : (
                   currentPagePlants.map((plant) => (
                     <tr key={plant.id} className="hover:bg-gray-50">
@@ -127,6 +129,8 @@ export function PlantsPage() {
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{plant.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.company?.name || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{Number(plant.installedPower).toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.concessionaire?.distributor?.name || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{plant.consumerUnit}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.city} - {plant.state}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">

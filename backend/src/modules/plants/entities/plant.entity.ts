@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Company } from '../../companies/entities/company.entity';
+import { Concessionaire } from '../../concessionaires/entities/concessionaire.entity';
 
 @Entity('plants')
 export class Plant extends BaseEntity {
@@ -26,6 +27,17 @@ export class Plant extends BaseEntity {
 
   @Column({ name: 'installed_power', type: 'decimal', precision: 10, scale: 2 })
   installedPower: number;
+
+  @Column({ name: 'concessionary_id' })
+  @Index()
+  concessionaryId: string;
+
+  @ManyToOne(() => Concessionaire, { nullable: false, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'concessionary_id' })
+  concessionaire: Concessionaire;
+
+  @Column({ name: 'consumer_unit' })
+  consumerUnit: string;
 
   @Column({ name: 'zip_code', length: 8 })
   zipCode: string;
