@@ -16,47 +16,51 @@ const menuItems: MenuItem[] = [
     icon: LayoutDashboard,
     label: 'Visão Geral',
   },
+  // ADMIN - Menus exclusivos
   {
     path: '/dashboard/companies',
     icon: Building2,
     label: 'Empresas',
-    roles: [UserRole.ADMIN], // Apenas ADMIN - pode gerenciar todas
-  },
-  {
-    path: '/dashboard/my-company',
-    icon: Building2,
-    label: 'Empresa',
-    roles: [UserRole.COADMIN], // COADMIN vê apenas sua empresa
+    roles: [UserRole.ADMIN],
   },
   {
     path: '/dashboard/users',
     icon: Users,
     label: 'Usuários',
-  },
-  {
-    path: '/dashboard/plants',
-    icon: Factory,
-    label: 'Usinas',
-    roles: [UserRole.COADMIN, UserRole.OPERATOR, UserRole.USER], // Não ADMIN
-  },
-  {
-    path: '/dashboard/cooperatives',
-    icon: Users2,
-    label: 'Cooperativas',
-    roles: [UserRole.COADMIN, UserRole.OPERATOR, UserRole.USER], // Não ADMIN
-  },
-  {
-    path: '/dashboard/concessionaires',
-    icon: Zap,
-    label: 'Concessionárias',
-    roles: [UserRole.COADMIN, UserRole.OPERATOR, UserRole.USER], // Não ADMIN
+    roles: [UserRole.ADMIN, UserRole.COADMIN],
   },
   {
     path: '/dashboard/audit-logs',
     icon: FileText,
     label: 'Audit Logs',
-    roles: [UserRole.ADMIN], // Apenas ADMIN
+    roles: [UserRole.ADMIN],
   },
+  // COADMIN - Menus exclusivos
+  {
+    path: '/dashboard/my-company',
+    icon: Building2,
+    label: 'Empresa',
+    roles: [UserRole.COADMIN],
+  },
+  {
+    path: '/dashboard/plants',
+    icon: Factory,
+    label: 'Usinas',
+    roles: [UserRole.COADMIN],
+  },
+  {
+    path: '/dashboard/cooperatives',
+    icon: Users2,
+    label: 'Cooperativas',
+    roles: [UserRole.COADMIN],
+  },
+  {
+    path: '/dashboard/concessionaires',
+    icon: Zap,
+    label: 'Concessionárias',
+    roles: [UserRole.COADMIN, UserRole.OPERATOR],
+  },
+  // Menus comuns (todos)
   {
     path: '/dashboard/profile',
     icon: UserCircle,

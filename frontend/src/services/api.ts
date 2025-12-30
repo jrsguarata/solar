@@ -38,48 +38,54 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Se erro 401 e não é retry, tenta renovar token
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    // Não tentar refresh em rotas de autenticação
+    const isAuthRoute = originalRequest.url?.includes('/auth/login') ||
+                        originalRequest.url?.includes('/auth/refresh') ||
+                        originalRequest.url?.includes('/auth/register');
 
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
+    // Se erro 401, não é retry, não é rota de autenticação, e tem refresh token
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
+      const refreshToken = localStorage.getItem('refreshToken');
 
-        if (!refreshToken) {
-          throw new Error('Sem refresh token');
+      // Só tenta refresh se tiver um refresh token válido
+      if (refreshToken) {
+        originalRequest._retry = true;
+
+        try {
+          // Chamada para renovar token
+          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refreshToken,
+          });
+
+          // Salvar novo token
+          localStorage.setItem('accessToken', data.accessToken);
+
+          // Refazer requisição original com novo token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+          }
+
+          return api(originalRequest);
+        } catch (refreshError) {
+          // Refresh falhou, limpar tokens e redirecionar para login
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+
+          // Notificar usuário que a sessão expirou apenas se não estiver na página de login
+          if (!window.location.pathname.includes('/login')) {
+            toast.error('Sessão expirada. Por favor, faça login novamente.', {
+              duration: 4000,
+            });
+
+            // Aguardar toast ser exibido antes de redirecionar
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 500);
+          }
+
+          return Promise.reject(refreshError);
         }
-
-        // Chamada para renovar token
-        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refreshToken,
-        });
-
-        // Salvar novo token
-        localStorage.setItem('accessToken', data.accessToken);
-
-        // Refazer requisição original com novo token
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
-        }
-
-        return api(originalRequest);
-      } catch (refreshError) {
-        // Refresh falhou, limpar tokens e redirecionar para login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-
-        // Notificar usuário que a sessão expirou
-        toast.error('Sessão expirada. Por favor, faça login novamente.', {
-          duration: 4000,
-        });
-
-        // Aguardar toast ser exibido antes de redirecionar
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 500);
-
-        return Promise.reject(refreshError);
       }
     }
 
