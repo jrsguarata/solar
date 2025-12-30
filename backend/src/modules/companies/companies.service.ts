@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Company } from './entities/company.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { RequestContextService } from '../../common/context/request-context';
 
 @Injectable()
 export class CompaniesService {
@@ -67,6 +68,7 @@ export class CompaniesService {
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
     const company = await this.findOne(id);
+    const userId = RequestContextService.getUserId();
 
     if (updateCompanyDto.code && updateCompanyDto.code !== company.code) {
       const existingByCode = await this.findByCode(updateCompanyDto.code);
@@ -83,6 +85,11 @@ export class CompaniesService {
     }
 
     Object.assign(company, updateCompanyDto);
+
+    // Setar campos de auditoria diretamente nas propriedades de coluna
+    (company as any).updated_by = userId;
+    (company as any).updated_at = new Date();
+
     return this.companiesRepository.save(company);
   }
 

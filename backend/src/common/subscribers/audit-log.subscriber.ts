@@ -38,12 +38,17 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
 
     if (event.entity && 'id' in event.entity) {
       const recordId = (event.entity as any).id;
-      const freshEntity = await event.manager.findOne(event.metadata.target, {
-        where: { id: recordId } as any,
-      });
+      const tableName = event.metadata.tableName;
 
-      if (freshEntity) {
-        newEntity = freshEntity;
+      // CRITICAL: Buscar apenas dados brutos sem carregar relações
+      // Usar query SQL direto para evitar prefixos do QueryBuilder e propriedades virtuais (@RelationId)
+      const result = await event.manager.query(
+        `SELECT * FROM "${tableName}" WHERE id = $1`,
+        [recordId]
+      );
+
+      if (result && result.length > 0) {
+        newEntity = result[0];
       }
     }
 
@@ -181,6 +186,10 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
     return ignoredFields.includes(fieldName);
   }
 
+  private snakeToCamel(str: string): string {
+    return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
   private sanitizeValues(values?: any): Record<string, any> | undefined {
     if (!values) {
       return undefined;
@@ -188,25 +197,16 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
 
     const sanitized: Record<string, any> = {};
 
-    // Lista de campos duplicados em snake_case que devem ser removidos
-    // (mantemos apenas as versões camelCase)
-    const snakeCaseFieldsToRemove = [
-      'updated_by',
-      'deactivated_by',
-    ];
-
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
-        // Ignorar campos snake_case duplicados
-        if (snakeCaseFieldsToRemove.includes(key)) {
-          continue;
-        }
-
         // Ignorar relações carregadas (objetos aninhados que terminam com "User" ou são objetos de relação)
         if (this.isRelationField(key, values[key])) {
           continue;
         }
-        sanitized[key] = this.sanitizeField(key, values[key]);
+
+        // Converter snake_case para camelCase
+        const camelKey = this.snakeToCamel(key);
+        sanitized[camelKey] = this.sanitizeField(key, values[key]);
       }
     }
 

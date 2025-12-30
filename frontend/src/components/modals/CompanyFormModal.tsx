@@ -15,6 +15,11 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
   const [formData, setFormData] = useState({
     name: company?.name || '',
     cnpj: company?.cnpj || '',
+    code: company?.code || '',
+    zipCode: company?.zipCode || '',
+    streetName: company?.streetName || '',
+    city: company?.city || '',
+    state: company?.state || '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -27,6 +32,18 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
     if (e.target.name === 'cnpj') {
       value = value.replace(/\D/g, ''); // Remove non-digits
       if (value.length > 14) value = value.substring(0, 14);
+    }
+
+    // Format zipCode - apenas números, máximo 8
+    if (e.target.name === 'zipCode') {
+      value = value.replace(/\D/g, '');
+      if (value.length > 8) value = value.substring(0, 8);
+    }
+
+    // Format state - apenas letras maiúsculas, máximo 2
+    if (e.target.name === 'state') {
+      value = value.toUpperCase().replace(/[^A-Z]/g, '');
+      if (value.length > 2) value = value.substring(0, 2);
     }
 
     setFormData({
@@ -69,15 +86,25 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
       if (isEditing) {
         // Update
         const updateData: UpdateCompanyDto = {
+          code: formData.code || undefined,
           name: formData.name,
           cnpj,
+          zipCode: formData.zipCode,
+          streetName: formData.streetName,
+          city: formData.city,
+          state: formData.state,
         };
         await companyService.update(company.id, updateData);
       } else {
         // Create
         const createData: CreateCompanyDto = {
+          code: formData.code,
           name: formData.name,
           cnpj,
+          zipCode: formData.zipCode,
+          streetName: formData.streetName,
+          city: formData.city,
+          state: formData.state,
         };
         await companyService.create(createData);
       }
@@ -114,6 +141,23 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
             </div>
           )}
 
+          {/* Código */}
+          <div>
+            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+              Código *
+            </label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              required
+              value={formData.code}
+              onChange={handleChange}
+              placeholder="COMP001"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
           {/* Nome */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -146,6 +190,86 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">Digite apenas os números</p>
+          </div>
+
+          {/* Seção de Endereço */}
+          <div className="pt-4 border-t border-gray-200">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Endereço</h3>
+
+            <div className="space-y-4">
+              {/* CEP */}
+              <div>
+                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  CEP *
+                </label>
+                <input
+                  type="text"
+                  id="zipCode"
+                  name="zipCode"
+                  required
+                  value={formData.zipCode}
+                  onChange={handleChange}
+                  placeholder="12345678"
+                  maxLength={8}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">Digite apenas os números (8 dígitos)</p>
+              </div>
+
+              {/* Nome da Rua */}
+              <div>
+                <label htmlFor="streetName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome da Rua *
+                </label>
+                <input
+                  type="text"
+                  id="streetName"
+                  name="streetName"
+                  required
+                  value={formData.streetName}
+                  onChange={handleChange}
+                  placeholder="Rua das Flores, 123"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Cidade e Estado */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                    Cidade *
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    required
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="São Paulo"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                    Estado (UF) *
+                  </label>
+                  <input
+                    type="text"
+                    id="state"
+                    name="state"
+                    required
+                    value={formData.state}
+                    onChange={handleChange}
+                    placeholder="SP"
+                    maxLength={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">2 letras</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Actions */}

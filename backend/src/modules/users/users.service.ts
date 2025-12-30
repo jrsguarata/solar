@@ -11,6 +11,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CompaniesService } from '../companies/companies.service';
 import { RequestContextService } from '../../common/context/request-context';
+import { AuditLog, AuditAction } from '../../common/entities/audit-log.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -194,18 +195,69 @@ export class UsersService {
       throw new BadRequestException('Usuário já está ativo');
     }
 
-    // SOLUÇÃO: Usar QueryBuilder para garantir que NULL seja setado no banco
-    // Depois registrar manualmente no audit log com valores corretos
+    const userId = RequestContextService.getUserId();
+
+    // Capturar valores ANTES da mudança para o audit log
+    const oldValues = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .getRawOne();
+
+    // SOLUÇÃO FINAL: Usar QueryBuilder.update() para garantir que NULL seja setado
+    // Como QueryBuilder não dispara subscribers, criar audit log MANUALMENTE
     await this.usersRepository
       .createQueryBuilder()
       .update(User)
       .set({
         isActive: true,
         deactivatedAt: () => 'NULL',
-        deactivated_by: () => 'NULL',
+        deactivated_by: () => 'NULL', // Usar SQL function para setar NULL
+        updatedAt: new Date(),
+        updated_by: userId,
       } as any)
       .where('id = :id', { id })
       .execute();
+
+    // Buscar valores DEPOIS da mudança
+    const newValues = await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .getRawOne();
+
+    // Criar audit log MANUALMENTE
+    const changedFields: string[] = [];
+    for (const key in oldValues) {
+      if (key.startsWith('user_')) {
+        const cleanKey = key.replace('user_', '');
+        if (JSON.stringify(oldValues[key]) !== JSON.stringify(newValues[key])) {
+          changedFields.push(cleanKey);
+        }
+      }
+    }
+
+    // Sanitizar valores removendo prefixo "user_"
+    const sanitizeValues = (values: any) => {
+      const sanitized: any = {};
+      for (const key in values) {
+        if (key.startsWith('user_')) {
+          const cleanKey = key.replace('user_', '');
+          sanitized[cleanKey] = values[key];
+        }
+      }
+      return sanitized;
+    };
+
+    const auditLog = this.usersRepository.manager.create(AuditLog, {
+      tableName: 'users',
+      recordId: id,
+      action: AuditAction.UPDATE,
+      oldValues: sanitizeValues(oldValues),
+      newValues: sanitizeValues(newValues),
+      changedFields: changedFields.filter(f => f !== 'updated_at'),
+      userId,
+    });
+
+    await this.usersRepository.manager.save(AuditLog, auditLog);
 
     return this.findOne(id);
   }

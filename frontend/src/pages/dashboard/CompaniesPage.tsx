@@ -289,23 +289,43 @@ export function CompaniesPage() {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Nome da Empresa */}
+              {/* Informações Básicas */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Nome da Empresa</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-lg font-medium text-gray-900">
-                    {selectedCompany.name}
-                  </p>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Informações Básicas</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Código</label>
+                    <p className="text-sm text-gray-900 font-medium">{selectedCompany.code}</p>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Nome da Empresa</label>
+                    <p className="text-lg font-medium text-gray-900">{selectedCompany.name}</p>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">CNPJ</label>
+                    <p className="text-lg font-mono text-gray-900">{formatCNPJ(selectedCompany.cnpj)}</p>
+                  </div>
                 </div>
               </div>
 
-              {/* CNPJ */}
+              {/* Endereço */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">CNPJ</h4>
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-lg font-mono text-gray-900">
-                    {formatCNPJ(selectedCompany.cnpj)}
-                  </p>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Endereço</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">CEP</label>
+                    <p className="text-sm text-gray-900">{selectedCompany.zipCode}</p>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Nome da Rua</label>
+                    <p className="text-sm text-gray-900">{selectedCompany.streetName}</p>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Cidade/Estado</label>
+                    <p className="text-sm text-gray-900">
+                      {selectedCompany.city} - {selectedCompany.state}
+                    </p>
+                  </div>
                 </div>
               </div>
 

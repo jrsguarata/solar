@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import { toast } from 'sonner';
 
 // Configuração base da API
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
@@ -67,7 +68,16 @@ api.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+
+        // Notificar usuário que a sessão expirou
+        toast.error('Sessão expirada. Por favor, faça login novamente.', {
+          duration: 4000,
+        });
+
+        // Aguardar toast ser exibido antes de redirecionar
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 500);
 
         return Promise.reject(refreshError);
       }

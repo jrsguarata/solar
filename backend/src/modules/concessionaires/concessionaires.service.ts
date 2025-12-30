@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Concessionaire } from './entities/concessionaire.entity';
 import { CreateConcessionaireDto } from './dto/create-concessionaire.dto';
 import { UpdateConcessionaireDto } from './dto/update-concessionaire.dto';
+import { RequestContextService } from '../../common/context/request-context';
 
 @Injectable()
 export class ConcessionairesService {
@@ -73,8 +74,13 @@ export class ConcessionairesService {
     currentUser: any,
   ): Promise<Concessionaire> {
     const concessionaire = await this.findOne(id, currentUser);
+    const userId = RequestContextService.getUserId();
 
     Object.assign(concessionaire, updateConcessionaireDto);
+
+    // Setar campos de auditoria diretamente nas propriedades de coluna
+    (concessionaire as any).updated_by = userId;
+    (concessionaire as any).updated_at = new Date();
 
     return this.concessionairesRepository.save(concessionaire);
   }

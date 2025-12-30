@@ -17,13 +17,15 @@ export class CreateConcessionaireDto {
   distributorId: string;
 
   @ApiProperty({
-    example: '12345678901234',
-    description: 'CNPJ da concessionária (14 caracteres)',
+    example: 'AB34567890123Z',
+    description: 'CNPJ da concessionária no novo formato alfanumérico (12 caracteres alfanuméricos + 2 dígitos verificadores)',
   })
   @IsString({ message: 'CNPJ deve ser uma string' })
   @IsNotEmpty({ message: 'CNPJ não pode estar vazio' })
   @Length(14, 14, { message: 'CNPJ deve ter 14 caracteres' })
-  @Matches(/^\d{14}$/, { message: 'CNPJ deve conter apenas números' })
+  @Matches(/^[A-Za-z0-9]{12}\d{2}$/, {
+    message: 'CNPJ deve conter 12 caracteres alfanuméricos (letras e números) seguidos de 2 dígitos verificadores',
+  })
   cnpj: string;
 
   @ApiProperty({ example: '12345678', description: 'CEP (8 caracteres)' })

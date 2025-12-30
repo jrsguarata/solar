@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { Header } from './components/Header';
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
@@ -15,6 +16,7 @@ import { ConcessionairesPage } from './pages/dashboard/ConcessionairesPage';
 function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" richColors closeButton />
       <div className="min-h-screen">
         <Routes>
           {/* Public Routes */}
