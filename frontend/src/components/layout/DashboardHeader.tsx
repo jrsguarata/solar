@@ -22,7 +22,7 @@ export function DashboardHeader() {
       case UserRole.OPERATOR:
         return 'Dashboard de Operação';
       case UserRole.USER:
-        return 'Dashboard';
+        return 'Dashboard do Cooperado';
       default:
         return 'Dashboard';
     }
