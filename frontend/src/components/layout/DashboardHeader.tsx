@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Sun, LogOut, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { UserRole } from '../../models';
 
 export function DashboardHeader() {
   const navigate = useNavigate();
@@ -9,6 +10,22 @@ export function DashboardHeader() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  // Determinar título do dashboard baseado no perfil
+  const getDashboardTitle = () => {
+    switch (user?.role) {
+      case UserRole.ADMIN:
+        return 'Dashboard de Administração do Sistema';
+      case UserRole.COADMIN:
+        return 'Dashboard de Administração de Empresa';
+      case UserRole.OPERATOR:
+        return 'Dashboard de Operação';
+      case UserRole.USER:
+        return 'Dashboard';
+      default:
+        return 'Dashboard';
+    }
   };
 
   return (
@@ -25,7 +42,7 @@ export function DashboardHeader() {
             </div>
             <div className="h-8 w-px bg-gray-300"></div>
             <h1 className="text-lg font-semibold text-gray-700">
-              Dashboard de Administração do Sistema
+              {getDashboardTitle()}
             </h1>
           </div>
 

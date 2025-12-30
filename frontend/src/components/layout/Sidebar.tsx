@@ -52,13 +52,13 @@ const menuItems: MenuItem[] = [
     path: '/dashboard/cooperatives',
     icon: Users2,
     label: 'Cooperativas',
-    roles: [UserRole.COADMIN],
+    roles: [UserRole.COADMIN, UserRole.OPERATOR],
   },
   {
     path: '/dashboard/concessionaires',
     icon: Zap,
     label: 'Concessionárias',
-    roles: [UserRole.COADMIN, UserRole.OPERATOR],
+    roles: [UserRole.COADMIN],
   },
   // Menus comuns (todos)
   {

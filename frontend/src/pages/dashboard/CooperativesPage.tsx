@@ -7,8 +7,11 @@ import type { Cooperative } from '../../models';
 import { CooperativeFormModal } from '../../components/modals/CooperativeFormModal';
 import { ViewCooperativeModal } from '../../components/modals/ViewCooperativeModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
+import { useAuthStore } from '../../store/authStore';
+import { UserRole } from '../../models';
 
 export function CooperativesPage() {
+  const { user } = useAuthStore();
   const [cooperatives, setCooperatives] = useState<Cooperative[]>([]);
   const [filteredCooperatives, setFilteredCooperatives] = useState<Cooperative[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +23,8 @@ export function CooperativesPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedCooperative, setSelectedCooperative] = useState<Cooperative | null>(null);
+
+  const isOperator = user?.role === UserRole.OPERATOR;
 
   useEffect(() => {
     loadData();
@@ -34,7 +39,13 @@ export function CooperativesPage() {
     try {
       setLoading(true);
       const data = await cooperativeService.getAll();
-      setCooperatives(data);
+
+      // Se for OPERATOR, filtrar apenas cooperativas da sua empresa
+      const filteredData = isOperator && user?.companyId
+        ? data.filter(cooperative => cooperative.companyId === user.companyId)
+        : data;
+
+      setCooperatives(filteredData);
     } catch (error) {
       console.error('Erro ao carregar cooperativas:', error);
     } finally {
@@ -94,24 +105,22 @@ export function CooperativesPage() {
     return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
-  };
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Gerenciar Cooperativas</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {isOperator ? 'Cooperativas' : 'Gerenciar Cooperativas'}
+            </h2>
             <p className="text-gray-600 mt-1">{filteredCooperatives.length} cooperativa(s) encontrada(s)</p>
           </div>
-          <button onClick={handleCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-            <Plus className="w-5 h-5" />
-            Nova Cooperativa
-          </button>
+          {!isOperator && (
+            <button onClick={handleCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+              <Plus className="w-5 h-5" />
+              Nova Cooperativa
+            </button>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border p-4">
@@ -154,8 +163,12 @@ export function CooperativesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button onClick={() => handleView(cooperative)} className="p-1 text-gray-600 hover:bg-gray-50 rounded" title="Visualizar"><Eye className="w-4 h-4" /></button>
-                          <button onClick={() => handleEdit(cooperative)} className="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => handleDelete(cooperative)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                          {!isOperator && (
+                            <>
+                              <button onClick={() => handleEdit(cooperative)} className="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => handleDelete(cooperative)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
