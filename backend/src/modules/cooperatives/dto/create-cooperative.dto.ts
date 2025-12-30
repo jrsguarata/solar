@@ -27,6 +27,11 @@ export class CreateCooperativeDto {
   @IsNotEmpty({ message: 'ID da empresa não pode estar vazio' })
   companyId: string;
 
+  @ApiProperty({ example: 'uuid-da-usina', description: 'ID da usina associada' })
+  @IsString({ message: 'ID da usina deve ser uma string' })
+  @IsNotEmpty({ message: 'ID da usina não pode estar vazio' })
+  plantId: string;
+
   @ApiProperty({ example: '12345678901234', description: 'CNPJ da cooperativa (14 dígitos)' })
   @IsString({ message: 'CNPJ deve ser uma string' })
   @IsNotEmpty({ message: 'CNPJ não pode estar vazio' })

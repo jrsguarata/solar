@@ -1,4 +1,5 @@
 import type { Company } from './Company';
+import type { Plant } from './Plant';
 
 export interface Cooperative {
   id: string;
@@ -6,6 +7,8 @@ export interface Cooperative {
   name: string;
   companyId: string;
   company?: Company;
+  plantId: string;
+  plant?: Plant;
   cnpj: string;
   zipCode: string;
   streetName: string;
@@ -29,6 +32,7 @@ export interface CreateCooperativeDto {
   code: string;
   name: string;
   companyId: string;
+  plantId: string;
   cnpj: string;
   zipCode: string;
   streetName: string;
@@ -43,6 +47,7 @@ export interface UpdateCooperativeDto {
   code?: string;
   name?: string;
   companyId?: string;
+  plantId?: string;
   cnpj?: string;
   zipCode?: string;
   streetName?: string;

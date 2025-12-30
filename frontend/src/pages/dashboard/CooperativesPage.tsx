@@ -129,6 +129,7 @@ export function CooperativesPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usina</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">CNPJ</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Energia Mensal (kWh)</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cidade/UF</th>
@@ -137,15 +138,16 @@ export function CooperativesPage() {
               </thead>
               <tbody className="bg-white divide-y">
                 {loading ? (
-                  <tr><td colSpan={7} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
+                  <tr><td colSpan={8} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
                 ) : filteredCooperatives.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">Nenhuma cooperativa encontrada</td></tr>
+                  <tr><td colSpan={8} className="px-6 py-12 text-center text-gray-500">Nenhuma cooperativa encontrada</td></tr>
                 ) : (
                   currentPageCooperatives.map((cooperative) => (
                     <tr key={cooperative.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{cooperative.code}</td>
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{cooperative.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.company?.name || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.plant?.name || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{formatCNPJ(cooperative.cnpj)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.monthlyEnergy.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.city} - {cooperative.state}</td>

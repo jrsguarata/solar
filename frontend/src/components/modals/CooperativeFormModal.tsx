@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { cooperativeService, companyService } from '../../services';
-import type { Cooperative, CreateCooperativeDto, UpdateCooperativeDto, Company } from '../../models';
+import { cooperativeService, companyService, plantService } from '../../services';
+import type { Cooperative, CreateCooperativeDto, UpdateCooperativeDto, Company, Plant } from '../../models';
 
 interface CooperativeFormModalProps {
   cooperative: Cooperative | null;
@@ -12,11 +12,13 @@ interface CooperativeFormModalProps {
 export function CooperativeFormModal({ cooperative, onClose, onSuccess }: CooperativeFormModalProps) {
   const isEditing = !!cooperative;
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [plants, setPlants] = useState<Plant[]>([]);
 
   const [formData, setFormData] = useState({
     code: cooperative?.code || '',
     name: cooperative?.name || '',
     companyId: cooperative?.companyId || '',
+    plantId: cooperative?.plantId || '',
     cnpj: cooperative?.cnpj || '',
     zipCode: cooperative?.zipCode || '',
     streetName: cooperative?.streetName || '',
@@ -32,6 +34,7 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
 
   useEffect(() => {
     loadCompanies();
+    loadPlants();
   }, []);
 
   const loadCompanies = async () => {
@@ -40,6 +43,15 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
       setCompanies(data);
     } catch (err) {
       console.error('Erro ao carregar empresas:', err);
+    }
+  };
+
+  const loadPlants = async () => {
+    try {
+      const data = await plantService.getAll();
+      setPlants(data);
+    } catch (err) {
+      console.error('Erro ao carregar usinas:', err);
     }
   };
 
@@ -97,6 +109,7 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
           code: formData.code || undefined,
           name: formData.name,
           companyId: formData.companyId,
+          plantId: formData.plantId,
           cnpj,
           zipCode: formData.zipCode,
           streetName: formData.streetName,
@@ -112,6 +125,7 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
           code: formData.code,
           name: formData.name,
           companyId: formData.companyId,
+          plantId: formData.plantId,
           cnpj,
           zipCode: formData.zipCode,
           streetName: formData.streetName,
@@ -204,6 +218,28 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
               {companies.map((company) => (
                 <option key={company.id} value={company.id}>
                   {company.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Usina */}
+          <div>
+            <label htmlFor="plantId" className="block text-sm font-medium text-gray-700 mb-1">
+              Usina *
+            </label>
+            <select
+              id="plantId"
+              name="plantId"
+              required
+              value={formData.plantId}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Selecione uma usina</option>
+              {plants.map((plant) => (
+                <option key={plant.id} value={plant.id}>
+                  {plant.name}
                 </option>
               ))}
             </select>

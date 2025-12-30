@@ -32,6 +32,7 @@ export class CooperativesService {
     const query = this.cooperativesRepository
       .createQueryBuilder('cooperative')
       .leftJoinAndSelect('cooperative.company', 'company')
+      .leftJoinAndSelect('cooperative.plant', 'plant')
       .leftJoinAndSelect('cooperative.createdByUser', 'createdByUser')
       .leftJoinAndSelect('cooperative.updatedByUser', 'updatedByUser')
       .orderBy('cooperative.createdAt', 'DESC');
@@ -49,7 +50,7 @@ export class CooperativesService {
   async findOne(id: string, currentUser: any): Promise<Cooperative> {
     const cooperative = await this.cooperativesRepository.findOne({
       where: { id },
-      relations: ['company', 'createdByUser', 'updatedByUser'],
+      relations: ['company', 'plant', 'createdByUser', 'updatedByUser'],
     });
 
     if (!cooperative) {

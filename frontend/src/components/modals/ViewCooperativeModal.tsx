@@ -40,9 +40,15 @@ export function ViewCooperativeModal({ cooperative, onClose }: ViewCooperativeMo
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Nome</label>
-            <p className="text-gray-900">{cooperative.name}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Nome</label>
+              <p className="text-gray-900">{cooperative.name}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Usina</label>
+              <p className="text-gray-900">{cooperative.plant?.name || '-'}</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

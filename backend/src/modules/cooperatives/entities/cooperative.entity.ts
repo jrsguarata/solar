@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Company } from '../../companies/entities/company.entity';
+import { Plant } from '../../plants/entities/plant.entity';
 
 @Entity('cooperatives')
 export class Cooperative extends BaseEntity {
@@ -23,6 +24,14 @@ export class Cooperative extends BaseEntity {
   @ManyToOne(() => Company, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'company_id' })
   company: Company;
+
+  @Column({ name: 'plant_id' })
+  @Index()
+  plantId: string;
+
+  @ManyToOne(() => Plant, { nullable: false, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'plant_id' })
+  plant: Plant;
 
   @Column({ length: 14 })
   @Index()
