@@ -24,8 +24,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
 
 @Controller('concessionaires')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.COADMIN, UserRole.OPERATOR, UserRole.USER)
+@UseGuards(JwtAuthGuard)
 @ApiTags('concessionaires')
 @ApiBearerAuth()
 export class ConcessionairesController {
@@ -34,8 +33,9 @@ export class ConcessionairesController {
   ) {}
 
   @Post()
-  @Roles(UserRole.COADMIN)
-  @ApiOperation({ summary: 'Criar nova concessionária (apenas COADMIN)' })
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COADMIN)
+  @ApiOperation({ summary: 'Criar nova concessionária (ADMIN ou COADMIN)' })
   @ApiResponse({ status: 201, description: 'Concessionária criada' })
   create(
     @Body() createConcessionaireDto: CreateConcessionaireDto,
@@ -63,8 +63,9 @@ export class ConcessionairesController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.COADMIN)
-  @ApiOperation({ summary: 'Atualizar concessionária (apenas COADMIN)' })
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COADMIN)
+  @ApiOperation({ summary: 'Atualizar concessionária (ADMIN ou COADMIN)' })
   update(
     @Param('id') id: string,
     @Body() updateConcessionaireDto: UpdateConcessionaireDto,
@@ -78,8 +79,9 @@ export class ConcessionairesController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.COADMIN)
-  @ApiOperation({ summary: 'Remover concessionária (soft delete, apenas COADMIN)' })
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COADMIN)
+  @ApiOperation({ summary: 'Remover concessionária (soft delete, ADMIN ou COADMIN)' })
   remove(@Param('id') id: string, @CurrentUser() currentUser: any) {
     return this.concessionairesService.remove(id, currentUser);
   }
