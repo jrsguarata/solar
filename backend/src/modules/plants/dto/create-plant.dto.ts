@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber, IsOptional, Length, Matches, Min } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Length, Matches, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreatePlantDto {
@@ -48,16 +48,4 @@ export class CreatePlantDto {
   @Length(2, 2, { message: 'Estado deve ter 2 caracteres (UF)' })
   @Matches(/^[A-Z]{2}$/, { message: 'Estado deve ser uma UF válida (ex: SP)' })
   state: string;
-
-  @ApiProperty({ example: -23.5505199, description: 'Latitude', required: false })
-  @IsOptional()
-  @IsNumber({}, { message: 'Latitude deve ser um número' })
-  @Type(() => Number)
-  latitude?: number;
-
-  @ApiProperty({ example: -46.6333094, description: 'Longitude', required: false })
-  @IsOptional()
-  @IsNumber({}, { message: 'Longitude deve ser um número' })
-  @Type(() => Number)
-  longitude?: number;
 }

@@ -126,7 +126,7 @@ export function PlantsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{plant.code}</td>
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{plant.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.company?.name || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.installedPower.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">{Number(plant.installedPower).toFixed(2)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.city} - {plant.state}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">

@@ -22,8 +22,6 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
     streetName: plant?.streetName || '',
     city: plant?.city || '',
     state: plant?.state || '',
-    latitude: plant?.latitude?.toString() || '',
-    longitude: plant?.longitude?.toString() || '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -68,8 +66,6 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
       const data = {
         ...formData,
         installedPower: parseFloat(formData.installedPower),
-        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
       };
 
       if (isEditing) {
@@ -142,20 +138,6 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
             <div className="mt-4">
               <label className="block text-sm font-medium mb-1">Cidade *</label>
               <input type="text" name="city" required value={formData.city} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
-            </div>
-          </div>
-
-          <div className="border-t pt-4">
-            <h3 className="font-semibold mb-3">Coordenadas (Opcional)</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Latitude</label>
-                <input type="number" step="0.0000001" name="latitude" value={formData.latitude} onChange={handleChange} placeholder="-23.5505199" className="w-full px-3 py-2 border rounded-lg" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Longitude</label>
-                <input type="number" step="0.0000001" name="longitude" value={formData.longitude} onChange={handleChange} placeholder="-46.6333094" className="w-full px-3 py-2 border rounded-lg" />
-              </div>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import { Company } from './Company';
+import type { Company } from './Company';
 
 // Interface Plant
 export interface Plant {
@@ -12,8 +12,6 @@ export interface Plant {
   streetName: string;
   city: string;
   state: string;
-  latitude?: number;
-  longitude?: number;
   createdAt: string;
   createdBy?: string;
   createdByUser?: { id: string; name: string };
@@ -35,8 +33,6 @@ export interface CreatePlantDto {
   streetName: string;
   city: string;
   state: string;
-  latitude?: number;
-  longitude?: number;
 }
 
 // Interface para atualização de usina
@@ -49,6 +45,4 @@ export interface UpdatePlantDto {
   streetName?: string;
   city?: string;
   state?: string;
-  latitude?: number;
-  longitude?: number;
 }
