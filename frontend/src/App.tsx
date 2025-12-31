@@ -5,6 +5,9 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
+import { AdminLandingPage } from './pages/landing/AdminLandingPage';
+import { CompanyLandingPage } from './pages/landing/CompanyLandingPage';
+import { CompanyLoginPage } from './pages/auth/CompanyLoginPage';
 import { DashboardHome } from './pages/dashboard/DashboardHome';
 import { UsersPage } from './pages/dashboard/UsersPage';
 import { CompaniesPage } from './pages/dashboard/CompaniesPage';
@@ -22,9 +25,17 @@ function App() {
       <Toaster position="top-right" richColors closeButton />
       <div className="min-h-screen">
         <Routes>
-          {/* Public Routes */}
+          {/* Admin Landing Page - Rota Raiz */}
+          <Route path="/" element={<AdminLandingPage />} />
+
+          {/* Admin Routes (sem companyCode) */}
+          <Route path="/admin/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Home antigo (com Header) - Manter para compatibilidade temporária */}
           <Route
-            path="/"
+            path="/home"
             element={
               <>
                 <Header />
@@ -32,11 +43,13 @@ function App() {
               </>
             }
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Dashboard Routes */}
+          {/* Company Landing Pages - Rotas Dinâmicas */}
+          <Route path="/:companyCode" element={<CompanyLandingPage />} />
+          <Route path="/:companyCode/login" element={<CompanyLoginPage />} />
+          <Route path="/:companyCode/forgot-password" element={<ForgotPassword />} />
+
+          {/* Dashboard Routes (protegidas) */}
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/dashboard/users" element={<UsersPage />} />
           <Route path="/dashboard/companies" element={<CompaniesPage />} />
