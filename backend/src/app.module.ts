@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -14,6 +15,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ConcessionairesModule } from './modules/concessionaires/concessionaires.module';
 import { PlantsModule } from './modules/plants/plants.module';
 import { CooperativesModule } from './modules/cooperatives/cooperatives.module';
+import { HealthModule } from './modules/health/health.module';
 import { validate } from './config/env.validation';
 import { CacheConfigService } from './config/cache.config';
 
@@ -27,8 +29,15 @@ import { CacheConfigService } from './config/cache.config';
       isGlobal: true,
       useClass: CacheConfigService,
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 segundos
+        limit: 10, // 10 requisições por minuto (global)
+      },
+    ]),
     DatabaseModule,
     CommonModule,
+    HealthModule,
     AuthModule,
     UsersModule,
     CompaniesModule,

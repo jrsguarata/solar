@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -38,9 +39,11 @@ export class CompaniesController {
 
   @Get('by-code/:code')
   @Public()
+  @Throttle({ default: { limit: 20, ttl: 60000 } }) // 20 requisições por minuto para landing pages
   @ApiOperation({ summary: 'Get company by code (Public endpoint for landing pages)' })
   @ApiResponse({ status: 200, description: 'Company found' })
   @ApiResponse({ status: 404, description: 'Company not found' })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
   findByCode(@Param('code') code: string) {
     return this.companiesService.findByCode(code);
   }
