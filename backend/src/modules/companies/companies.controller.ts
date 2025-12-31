@@ -15,6 +15,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 import { UserRole } from '../users/entities/user.entity';
 
 @ApiTags('companies')
@@ -33,6 +34,15 @@ export class CompaniesController {
   @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   create(@Body() createCompanyDto: CreateCompanyDto) {
     return this.companiesService.create(createCompanyDto);
+  }
+
+  @Get('by-code/:code')
+  @Public()
+  @ApiOperation({ summary: 'Get company by code (Public endpoint for landing pages)' })
+  @ApiResponse({ status: 200, description: 'Company found' })
+  @ApiResponse({ status: 404, description: 'Company not found' })
+  findByCode(@Param('code') code: string) {
+    return this.companiesService.findByCode(code);
   }
 
   @Get()

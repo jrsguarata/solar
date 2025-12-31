@@ -58,8 +58,17 @@ export class CompaniesService {
     return company;
   }
 
-  async findByCode(code: string): Promise<Company | null> {
-    return this.companiesRepository.findOne({ where: { code } });
+  async findByCode(code: string): Promise<Partial<Company>> {
+    const company = await this.companiesRepository.findOne({
+      where: { code },
+      select: ['id', 'code', 'name', 'cnpj']
+    });
+
+    if (!company) {
+      throw new NotFoundException(`Empresa com código ${code} não encontrada`);
+    }
+
+    return company;
   }
 
   async findByCnpj(cnpj: string): Promise<Company | null> {
@@ -71,7 +80,9 @@ export class CompaniesService {
     const userId = RequestContextService.getUserId();
 
     if (updateCompanyDto.code && updateCompanyDto.code !== company.code) {
-      const existingByCode = await this.findByCode(updateCompanyDto.code);
+      const existingByCode = await this.companiesRepository.findOne({
+        where: { code: updateCompanyDto.code },
+      });
       if (existingByCode) {
         throw new ConflictException('Código da empresa já existe');
       }

@@ -24,7 +24,7 @@ export class AuthService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string, companyId?: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
 
     if (!user) {
@@ -34,6 +34,13 @@ export class AuthService {
     // Verificar se o usuário está ativo
     if (!user.isActive) {
       throw new UnauthorizedException('Conta de usuário desativada');
+    }
+
+    // Validar company se fornecido (apenas para usuários não-ADMIN)
+    if (companyId && user.role !== UserRole.ADMIN) {
+      if (user.companyId !== companyId) {
+        throw new ForbiddenException('Usuário não pertence a esta empresa');
+      }
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
