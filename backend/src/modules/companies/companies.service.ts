@@ -2,9 +2,12 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { Company } from './entities/company.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -12,9 +15,14 @@ import { RequestContextService } from '../../common/context/request-context';
 
 @Injectable()
 export class CompaniesService {
+  private readonly CACHE_KEY_PREFIX = 'company:code:';
+  private readonly CACHE_TTL = 3600; // 1 hora em segundos
+
   constructor(
     @InjectRepository(Company)
     private companiesRepository: Repository<Company>,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
@@ -35,7 +43,18 @@ export class CompaniesService {
     }
 
     const company = this.companiesRepository.create(createCompanyDto);
-    return this.companiesRepository.save(company);
+    const savedCompany = await this.companiesRepository.save(company);
+
+    // Cachear a nova empresa
+    const cacheKey = `${this.CACHE_KEY_PREFIX}${savedCompany.code}`;
+    await this.cacheManager.set(cacheKey, {
+      id: savedCompany.id,
+      code: savedCompany.code,
+      name: savedCompany.name,
+      cnpj: savedCompany.cnpj,
+    }, this.CACHE_TTL);
+
+    return savedCompany;
   }
 
   async findAll(): Promise<Company[]> {
@@ -59,6 +78,15 @@ export class CompaniesService {
   }
 
   async findByCode(code: string): Promise<Partial<Company>> {
+    const cacheKey = `${this.CACHE_KEY_PREFIX}${code}`;
+
+    // Tentar buscar do cache primeiro
+    const cachedCompany = await this.cacheManager.get<Partial<Company>>(cacheKey);
+    if (cachedCompany) {
+      return cachedCompany;
+    }
+
+    // Se não estiver no cache, buscar do banco
     const company = await this.companiesRepository.findOne({
       where: { code },
       select: ['id', 'code', 'name', 'cnpj']
@@ -67,6 +95,9 @@ export class CompaniesService {
     if (!company) {
       throw new NotFoundException(`Empresa com código ${code} não encontrada`);
     }
+
+    // Salvar no cache por 1 hora
+    await this.cacheManager.set(cacheKey, company, this.CACHE_TTL);
 
     return company;
   }
@@ -78,6 +109,7 @@ export class CompaniesService {
   async update(id: string, updateCompanyDto: UpdateCompanyDto): Promise<Company> {
     const company = await this.findOne(id);
     const userId = RequestContextService.getUserId();
+    const oldCode = company.code;
 
     if (updateCompanyDto.code && updateCompanyDto.code !== company.code) {
       const existingByCode = await this.companiesRepository.findOne({
@@ -101,11 +133,32 @@ export class CompaniesService {
     (company as any).updated_by = userId;
     (company as any).updated_at = new Date();
 
-    return this.companiesRepository.save(company);
+    const updatedCompany = await this.companiesRepository.save(company);
+
+    // Invalidar cache antigo se o código mudou
+    if (oldCode !== updatedCompany.code) {
+      await this.cacheManager.del(`${this.CACHE_KEY_PREFIX}${oldCode}`);
+    }
+
+    // Atualizar cache com novo código
+    const cacheKey = `${this.CACHE_KEY_PREFIX}${updatedCompany.code}`;
+    await this.cacheManager.set(cacheKey, {
+      id: updatedCompany.id,
+      code: updatedCompany.code,
+      name: updatedCompany.name,
+      cnpj: updatedCompany.cnpj,
+    }, this.CACHE_TTL);
+
+    return updatedCompany;
   }
 
   async remove(id: string): Promise<void> {
     const company = await this.findOne(id);
+
+    // Invalidar cache
+    const cacheKey = `${this.CACHE_KEY_PREFIX}${company.code}`;
+    await this.cacheManager.del(cacheKey);
+
     await this.companiesRepository.softDelete(company.id);
   }
 }

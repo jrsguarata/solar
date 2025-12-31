@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -14,12 +15,17 @@ import { ConcessionairesModule } from './modules/concessionaires/concessionaires
 import { PlantsModule } from './modules/plants/plants.module';
 import { CooperativesModule } from './modules/cooperatives/cooperatives.module';
 import { validate } from './config/env.validation';
+import { CacheConfigService } from './config/cache.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validate,
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useClass: CacheConfigService,
     }),
     DatabaseModule,
     CommonModule,

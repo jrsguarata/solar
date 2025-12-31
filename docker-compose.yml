@@ -16,6 +16,18 @@ services:
     networks:
       - solar-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: solar-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - solar-network
+    command: redis-server --appendonly yes
+
   backend:
     build:
       context: ./backend
@@ -30,6 +42,9 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_DATABASE: solar_dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_TTL: 3600
     ports:
       - '3000:3000'
     volumes:
@@ -37,6 +52,7 @@ services:
       - /app/node_modules
     depends_on:
       - postgres
+      - redis
     networks:
       - solar-network
     command: npm run start:dev
@@ -63,6 +79,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   solar-network:
