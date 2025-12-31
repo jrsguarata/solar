@@ -4,6 +4,7 @@ import type { User } from './User';
 export interface LoginDto {
   email: string;
   password: string;
+  companyId?: string; // Opcional: ID da empresa para validar login
 }
 
 // Interface de Login Response

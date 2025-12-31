@@ -19,6 +19,15 @@ class CompanyService {
   }
 
   /**
+   * Buscar empresa por código (endpoint público - sem autenticação)
+   * Usado nas landing pages para identificar a empresa
+   */
+  async getByCode(code: string): Promise<Partial<Company>> {
+    const { data } = await api.get<Partial<Company>>(`/companies/by-code/${code}`);
+    return data;
+  }
+
+  /**
    * Criar nova empresa (ADMIN only)
    */
   async create(companyData: CreateCompanyDto): Promise<Company> {
