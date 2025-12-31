@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
   Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +19,10 @@ export class CompaniesService {
   private readonly CACHE_KEY_PREFIX = 'company:code:';
   private readonly CACHE_TTL = 3600; // 1 hora em segundos
 
+  // Lista de códigos de empresas que possuem landing page configurada
+  // IMPORTANTE: Atualize esta lista sempre que criar uma nova landing page
+  private readonly VALID_LANDING_PAGES = ['EMP01'];
+
   constructor(
     @InjectRepository(Company)
     private companiesRepository: Repository<Company>,
@@ -26,6 +31,15 @@ export class CompaniesService {
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+    // Validar se existe landing page para esta empresa
+    if (!this.VALID_LANDING_PAGES.includes(createCompanyDto.code)) {
+      throw new BadRequestException(
+        `Landing page não existe para o código ${createCompanyDto.code}. ` +
+        `Por favor, crie o arquivo de landing page antes de cadastrar a empresa no sistema. ` +
+        `Códigos válidos: ${this.VALID_LANDING_PAGES.join(', ')}`
+      );
+    }
+
     const existingByCode = await this.companiesRepository.findOne({
       where: { code: createCompanyDto.code },
     });
