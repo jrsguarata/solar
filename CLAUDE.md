@@ -862,6 +862,211 @@ async findAll(
 - ✅ **Escalabilidade**: Funciona com milhares de registros
 - ✅ **Economia**: Reduz tráfego de rede e uso de memória
 
+### Landing Pages Customizadas por Empresa
+
+**REGRA GERAL: Cada empresa deve ter uma landing page customizada criada MANUALMENTE antes do cadastro no sistema.**
+
+#### Conceito
+
+O sistema é multi-tenant e cada empresa possui:
+- **URL única**: `http://localhost:5173/{companyCode}` (ex: `/EMP01`)
+- **Landing page customizada**: Componente React específico para cada empresa
+- **Validação dupla**: Frontend e backend verificam existência antes de permitir acesso/cadastro
+
+#### Estrutura de Arquivos
+
+```
+frontend/src/pages/landing/companies/
+├── README.md                    # Documentação completa
+├── index.ts                     # Mapa de componentes
+├── EMP01LandingPage.tsx         # Exemplo de landing page
+└── {CODIGO}LandingPage.tsx      # Novas landing pages
+```
+
+#### Workflow de Criação
+
+```
+1. Criar arquivo da landing page
+   frontend/src/pages/landing/companies/{CODIGO}LandingPage.tsx
+
+2. Implementar componente customizado
+   - Usar EMP01LandingPage.tsx como template
+   - Seções obrigatórias: Header, Hero, Contact, Login Link, Footer
+   - Props: { company: Partial<Company>, companyCode: string }
+
+3. Registrar no frontend (index.ts)
+   export { COOP01LandingPage } from './COOP01LandingPage';
+
+   export const companyLandingPages = {
+     'EMP01': require('./EMP01LandingPage').EMP01LandingPage,
+     'COOP01': require('./COOP01LandingPage').COOP01LandingPage, // ADD
+   };
+
+4. Registrar no backend (companies.service.ts)
+   private readonly VALID_LANDING_PAGES = ['EMP01', 'COOP01']; // ADD
+
+5. Testar landing page
+   Acessar: http://localhost:5173/{CODIGO}
+
+6. Cadastrar empresa no dashboard admin
+   Sistema valida se landing page existe
+```
+
+#### Validações Implementadas
+
+**Frontend (CompanyLandingPage.tsx):**
+```typescript
+// Verifica se existe landing page antes de buscar dados
+if (!hasCustomLandingPage(companyCode)) {
+  throw new Error(
+    `Landing page não existe para a empresa ${companyCode}. ` +
+    `Por favor, crie o arquivo antes de cadastrar a empresa no sistema.`
+  );
+}
+
+// Renderiza componente customizado
+const CustomLandingPage = getCompanyLandingPage(companyCode);
+return <CustomLandingPage company={company} companyCode={companyCode} />;
+```
+
+**Backend (companies.service.ts):**
+```typescript
+async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+  // Validar se existe landing page para esta empresa
+  if (!this.VALID_LANDING_PAGES.includes(createCompanyDto.code)) {
+    throw new BadRequestException(
+      `Landing page não existe para o código ${createCompanyDto.code}. ` +
+      `Por favor, crie o arquivo antes de cadastrar a empresa no sistema. ` +
+      `Códigos válidos: ${this.VALID_LANDING_PAGES.join(', ')}`
+    );
+  }
+  // ... continua criação
+}
+```
+
+#### Seções Obrigatórias da Landing Page
+
+Toda landing page deve conter:
+
+1. **Header**
+   - Logo da empresa (dinâmico com ícone Sun)
+   - Nome da empresa (company.name)
+   - Botão "Fazer Login" → `/${companyCode}/login`
+
+2. **Hero Section**
+   - Título principal personalizado
+   - Descrição da empresa/serviço
+   - Call-to-action para login/acesso
+
+3. **Seção de Contato** (id="contato")
+   - Email: contato@{companyCode}.com.br
+   - Telefone
+   - Endereço
+
+4. **Link para Login**
+   - Mínimo um botão redirecionando para `/${companyCode}/login`
+
+5. **Footer**
+   - Nome da empresa
+   - CNPJ (company.cnpj)
+   - Copyright
+   - Código da empresa (company.code)
+
+#### Exemplo de Landing Page Customizada
+
+```typescript
+// frontend/src/pages/landing/companies/EMP01LandingPage.tsx
+import { Link } from 'react-router-dom';
+import { Sun, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import type { Company } from '../../../models';
+
+interface EMP01LandingPageProps {
+  company: Partial<Company>;
+  companyCode: string;
+}
+
+export function EMP01LandingPage({ company, companyCode }: EMP01LandingPageProps) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      {/* Header com logo e login */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg p-2">
+                <Sun className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold">{company.name}</h1>
+            </div>
+            <Link
+              to={`/${companyCode}/login`}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg"
+            >
+              Área do Cliente
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section personalizada */}
+      <section className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <h2 className="text-5xl font-bold mb-6">
+          Energia Solar para sua Empresa
+        </h2>
+        <p className="text-xl mb-8">
+          Economize até 95% na conta de luz com energia limpa e renovável.
+        </p>
+        <Link to={`/${companyCode}/login`}>Acessar Sistema</Link>
+      </section>
+
+      {/* Seção de Contato obrigatória */}
+      <section id="contato">
+        <Mail /> contato@{company.code?.toLowerCase()}.com.br
+        <Phone /> (11) 98765-4321
+        <MapPin /> Av. Paulista, 1000 - São Paulo/SP
+      </section>
+
+      {/* Footer com informações da empresa */}
+      <footer className="bg-gray-900 text-white py-12">
+        <p>{company.name}</p>
+        <p>CNPJ: {company.cnpj}</p>
+        <p>© 2025 {company.name}. Todos os direitos reservados.</p>
+      </footer>
+    </div>
+  );
+}
+```
+
+#### Dados Disponíveis
+
+Props recebidas pelo componente:
+
+```typescript
+company.id        // UUID da empresa
+company.code      // Código único (ex: 'EMP01')
+company.name      // Nome da empresa
+company.cnpj      // CNPJ formatado
+```
+
+#### Benefícios
+
+- ✅ **Personalização Total**: Cada empresa tem design e conteúdo únicos
+- ✅ **Validação Rigorosa**: Impossível cadastrar empresa sem landing page
+- ✅ **Type Safety**: TypeScript garante props corretas
+- ✅ **Documentação Completa**: README.md com instruções passo a passo
+- ✅ **Fácil Manutenção**: Template reutilizável (EMP01LandingPage)
+- ✅ **Multi-tenant**: URL independente por empresa (/{companyCode})
+
+#### Documentação Completa
+
+Ver: `frontend/src/pages/landing/companies/README.md`
+
+- Instruções passo a passo
+- Checklist de criação
+- Exemplos de código
+- Troubleshooting
+- Dados dinâmicos disponíveis
+
 ### NUNCA Commitar
 
 ```gitignore
