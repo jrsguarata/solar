@@ -18,11 +18,29 @@ export class AuditLogSubscriber implements EntitySubscriberInterface<any> {
   // Se listenTo() não for implementado ou retornar undefined, o subscriber escuta todas
 
   async afterInsert(event: InsertEvent<any>): Promise<void> {
+    // Buscar dados completos do banco após insert para garantir que todos os campos sejam capturados
+    let newEntity = event.entity;
+
+    if (event.entity && 'id' in event.entity) {
+      const recordId = (event.entity as any).id;
+      const tableName = event.metadata.tableName;
+
+      // Buscar registro completo com query SQL direta
+      const result = await event.manager.query(
+        `SELECT * FROM "${tableName}" WHERE id = $1`,
+        [recordId]
+      );
+
+      if (result && result.length > 0) {
+        newEntity = result[0];
+      }
+    }
+
     await this.createAuditLog(
       event,
       AuditAction.INSERT,
       undefined,
-      event.entity,
+      newEntity,
     );
   }
 

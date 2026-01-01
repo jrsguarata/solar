@@ -217,29 +217,40 @@ export class CompaniesService {
         [company.id]
       );
 
+      // Salvar a entidade primeiro com isActive = true
+      const savedCompany = await this.companiesRepository.save(company);
+
       // Restaurar soft delete do TypeORM (limpa deactivated_at)
-      await this.companiesRepository.restore(company.id);
+      await this.companiesRepository.restore(savedCompany.id);
 
       // Limpar deactivated_by manualmente com SQL direto
       await this.companiesRepository.manager.query(
         'UPDATE companies SET deactivated_by = NULL WHERE id = $1',
-        [company.id]
+        [savedCompany.id]
       );
 
       // Buscar valores novos APÓS todas as mudanças
       const newValues = await this.companiesRepository.manager.query(
         'SELECT * FROM companies WHERE id = $1',
-        [company.id]
+        [savedCompany.id]
       );
 
       // Registrar auditoria manualmente
       await this.createManualAuditLog(
-        company.id,
+        savedCompany.id,
         AuditAction.UPDATE,
         oldValues[0],
         newValues[0],
         userId
       );
+
+      // Invalidar cache
+      const cacheKey = `${this.CACHE_KEY_PREFIX}${savedCompany.code}`;
+      await this.cacheManager.del(cacheKey);
+
+      // Buscar a empresa atualizada para retornar com todos os campos corretos
+      const updatedCompany = await this.findOne(savedCompany.id);
+      return updatedCompany;
     }
 
     const updatedCompany = await this.companiesRepository.save(company);

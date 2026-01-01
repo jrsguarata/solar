@@ -15,7 +15,7 @@ export interface User {
   role: UserRole;
   isActive: boolean;
   companyId?: string;
-  company?: { id: string; name: string };
+  company?: { id: string; name: string; code: string };
   createdAt: string;
   createdBy?: string;
   createdByUser?: { id: string; name: string };

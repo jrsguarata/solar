@@ -8,8 +8,16 @@ export function DashboardHeader() {
   const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
+    // Determinar rota de login baseado no perfil e empresa do usuário
+    let loginRoute = '/admin/login'; // Padrão para ADMIN
+
+    if (user?.role !== UserRole.ADMIN && user?.company?.code) {
+      // Usuários de empresa (COADMIN, OPERATOR, USER) vão para login da empresa
+      loginRoute = `/${user.company.code}/login`;
+    }
+
     logout();
-    navigate('/login');
+    navigate(loginRoute);
   };
 
   // Determinar título do dashboard baseado no perfil
@@ -41,9 +49,17 @@ export function DashboardHeader() {
               <span className="text-xl font-bold text-gray-900">Solar</span>
             </div>
             <div className="h-8 w-px bg-gray-300"></div>
-            <h1 className="text-lg font-semibold text-gray-700">
-              {getDashboardTitle()}
-            </h1>
+            <div className="flex flex-col">
+              {/* Nome da Empresa (apenas para COADMIN, OPERATOR e USER) */}
+              {user?.role !== UserRole.ADMIN && user?.company?.name && (
+                <span className="text-sm font-medium text-blue-600">
+                  {user.company.name}
+                </span>
+              )}
+              <h1 className="text-lg font-semibold text-gray-700">
+                {getDashboardTitle()}
+              </h1>
+            </div>
           </div>
 
           {/* User Info e Logout */}

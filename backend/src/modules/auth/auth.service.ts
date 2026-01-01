@@ -74,6 +74,11 @@ export class AuthService {
         mobile: user.mobile,
         role: user.role,
         companyId: user.companyId,
+        company: user.company ? {
+          id: user.company.id,
+          name: user.company.name,
+          code: user.company.code,
+        } : undefined,
       },
     };
   }

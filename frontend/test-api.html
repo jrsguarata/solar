@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Teste de API - Dados da Empresa</h1>
+    <button onclick="testar()">Testar</button>
+    <pre id="resultado"></pre>
+    
+    <script>
+    async function testar() {
+        const resultado = document.getElementById('resultado');
+        
+        try {
+            // Fazer login
+            const loginRes = await fetch('http://localhost:3000/api/v1/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'admin@solar.com',
+                    password: 'Admin@123'
+                })
+            });
+            
+            const loginData = await loginRes.json();
+            resultado.textContent = 'Login: ' + JSON.stringify(loginData, null, 2);
+            
+            if (!loginData.accessToken) {
+                resultado.textContent += '\n\nERRO: Sem token!';
+                return;
+            }
+            
+            // Buscar empresas
+            const companiesRes = await fetch('http://localhost:3000/api/v1/companies', {
+                headers: {
+                    'Authorization': `Bearer ${loginData.accessToken}`
+                }
+            });
+            
+            const companies = await companiesRes.json();
+            resultado.textContent += '\n\n=== EMPRESAS ===\n' + JSON.stringify(companies, null, 2);
+            
+        } catch (error) {
+            resultado.textContent = 'ERRO: ' + error.message;
+        }
+    }
+    </script>
+</body>
+</html>

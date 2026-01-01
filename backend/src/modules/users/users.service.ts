@@ -123,6 +123,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.usersRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
       .where('user.email = :email', { email })
       .addSelect('user.password')
       .getOne();
