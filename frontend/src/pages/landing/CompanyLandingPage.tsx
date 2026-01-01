@@ -29,10 +29,13 @@ export function CompanyLandingPage() {
       setLoading(true);
       setError(null);
 
+      // Normalizar código da empresa para uppercase
+      const normalizedCode = companyCode.toUpperCase();
+
       // Verificar se existe landing page customizada para esta empresa
-      if (!hasCustomLandingPage(companyCode)) {
+      if (!hasCustomLandingPage(normalizedCode)) {
         throw new Error(
-          `Landing page não existe para a empresa ${companyCode}. ` +
+          `Landing page não existe para a empresa ${normalizedCode}. ` +
           `Por favor, crie o arquivo antes de cadastrar a empresa no sistema.`
         );
       }
@@ -79,12 +82,13 @@ export function CompanyLandingPage() {
     );
   }
 
-  // Buscar o componente de landing page customizado
-  const CustomLandingPage = getCompanyLandingPage(companyCode!);
+  // Buscar o componente de landing page customizado (normalizado para uppercase)
+  const normalizedCode = companyCode!.toUpperCase();
+  const CustomLandingPage = getCompanyLandingPage(normalizedCode);
 
   // Renderizar o componente customizado
   if (CustomLandingPage) {
-    return <CustomLandingPage company={company} companyCode={companyCode!} />;
+    return <CustomLandingPage company={company} companyCode={normalizedCode} />;
   }
 
   // Fallback: não deveria chegar aqui devido à validação anterior

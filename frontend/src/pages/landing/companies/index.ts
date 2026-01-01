@@ -1,11 +1,14 @@
 import type { Company } from '../../../models';
 
 // Importar todas as landing pages customizadas
-export { EMP01LandingPage } from './EMP01LandingPage';
+import { EMP01LandingPage } from './EMP01LandingPage';
 
 // Adicione aqui novas landing pages conforme forem criadas
-// export { EMP02LandingPage } from './EMP02LandingPage';
-// export { COOP01LandingPage } from './COOP01LandingPage';
+// import { EMP02LandingPage } from './EMP02LandingPage';
+// import { COOP01LandingPage } from './COOP01LandingPage';
+
+// Re-exportar para uso externo
+export { EMP01LandingPage };
 
 // Interface para props das landing pages
 export interface CompanyLandingPageProps {
@@ -18,10 +21,10 @@ export type CompanyLandingPageComponent = React.FC<CompanyLandingPageProps>;
 
 // Mapa de códigos de empresa para seus componentes de landing page
 export const companyLandingPages: Record<string, CompanyLandingPageComponent> = {
-  'EMP01': require('./EMP01LandingPage').EMP01LandingPage,
+  'EMP01': EMP01LandingPage,
   // Adicione aqui novos mapeamentos:
-  // 'EMP02': require('./EMP02LandingPage').EMP02LandingPage,
-  // 'COOP01': require('./COOP01LandingPage').COOP01LandingPage,
+  // 'EMP02': EMP02LandingPage,
+  // 'COOP01': COOP01LandingPage,
 };
 
 /**

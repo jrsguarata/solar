@@ -37,15 +37,15 @@ export abstract class BaseEntity {
   @RelationId((entity: BaseEntity) => entity.updatedByUser)
   updatedBy?: string;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
-  deletedAt?: Date;
+  @DeleteDateColumn({ name: 'deactivated_at' })
+  deactivatedAt?: Date;
 
   @ManyToOne('User', { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'deleted_by' })
-  deletedByUser?: any;
+  @JoinColumn({ name: 'deactivated_by' })
+  deactivatedByUser?: any;
 
-  @RelationId((entity: BaseEntity) => entity.deletedByUser)
-  deletedBy?: string;
+  @RelationId((entity: BaseEntity) => entity.deactivatedByUser)
+  deactivatedBy?: string;
 
   @BeforeUpdate()
   updateAuditFields() {

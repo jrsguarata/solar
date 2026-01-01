@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { companyService } from '../../services';
+import { useCep } from '../../hooks/useCep';
 import type { Company, CreateCompanyDto, UpdateCompanyDto } from '../../models';
 
 interface CompanyFormModalProps {
@@ -11,6 +12,7 @@ interface CompanyFormModalProps {
 
 export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormModalProps) {
   const isEditing = !!company;
+  const { validateCep, formatCep, loading: cepLoading, error: cepError, clearError } = useCep();
 
   const [formData, setFormData] = useState({
     name: company?.name || '',
@@ -18,8 +20,12 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
     code: company?.code || '',
     zipCode: company?.zipCode || '',
     streetName: company?.streetName || '',
+    number: company?.number || '',
+    complement: company?.complement || '',
+    neighborhood: company?.neighborhood || '',
     city: company?.city || '',
     state: company?.state || '',
+    isActive: company?.isActive ?? true,
   });
 
   const [loading, setLoading] = useState(false);
@@ -34,12 +40,6 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
       if (value.length > 14) value = value.substring(0, 14);
     }
 
-    // Format zipCode - apenas números, máximo 8
-    if (e.target.name === 'zipCode') {
-      value = value.replace(/\D/g, '');
-      if (value.length > 8) value = value.substring(0, 8);
-    }
-
     // Format state - apenas letras maiúsculas, máximo 2
     if (e.target.name === 'state') {
       value = value.toUpperCase().replace(/[^A-Z]/g, '');
@@ -50,6 +50,28 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
       ...formData,
       [e.target.name]: value,
     });
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCep(e.target.value);
+    setFormData(prev => ({ ...prev, zipCode: formatted }));
+    clearError();
+  };
+
+  const handleCepBlur = async () => {
+    if (formData.zipCode.replace(/\D/g, '').length === 8) {
+      const cepData = await validateCep(formData.zipCode);
+
+      if (cepData) {
+        setFormData(prev => ({
+          ...prev,
+          streetName: cepData.logradouro,
+          neighborhood: cepData.bairro,
+          city: cepData.localidade,
+          state: cepData.uf,
+        }));
+      }
+    }
   };
 
   const formatCNPJDisplay = (cnpj: string) => {
@@ -89,10 +111,14 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
           code: formData.code || undefined,
           name: formData.name,
           cnpj,
-          zipCode: formData.zipCode,
+          zipCode: formData.zipCode.replace(/\D/g, ''),
           streetName: formData.streetName,
+          number: formData.number,
+          complement: formData.complement || undefined,
+          neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
+          isActive: formData.isActive,
         };
         await companyService.update(company.id, updateData);
       } else {
@@ -101,8 +127,11 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
           code: formData.code,
           name: formData.name,
           cnpj,
-          zipCode: formData.zipCode,
+          zipCode: formData.zipCode.replace(/\D/g, ''),
           streetName: formData.streetName,
+          number: formData.number,
+          complement: formData.complement || undefined,
+          neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
         };
@@ -192,6 +221,37 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
             <p className="text-xs text-gray-500 mt-1">Digite apenas os números</p>
           </div>
 
+          {/* Status - apenas na edição */}
+          {isEditing && (
+            <div className="pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label htmlFor="isActive" className="block text-sm font-medium text-gray-700">
+                    Status da Empresa
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.isActive
+                      ? 'Empresa ativa e operacional'
+                      : 'Empresa desativada (pode ser reativada)'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, isActive: !prev.isActive }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    formData.isActive ? 'bg-green-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.isActive ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Seção de Endereço */}
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">Endereço</h3>
@@ -202,24 +262,34 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
                 <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
                   CEP *
                 </label>
-                <input
-                  type="text"
-                  id="zipCode"
-                  name="zipCode"
-                  required
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  placeholder="12345678"
-                  maxLength={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">Digite apenas os números (8 dígitos)</p>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="zipCode"
+                    name="zipCode"
+                    required
+                    value={formData.zipCode}
+                    onChange={handleCepChange}
+                    onBlur={handleCepBlur}
+                    placeholder="00000-000"
+                    maxLength={9}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {cepLoading && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                    </div>
+                  )}
+                </div>
+                {cepError && (
+                  <p className="text-xs text-red-600 mt-1">{cepError}</p>
+                )}
               </div>
 
               {/* Nome da Rua */}
               <div>
                 <label htmlFor="streetName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome da Rua *
+                  Logradouro *
                 </label>
                 <input
                   type="text"
@@ -228,8 +298,61 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
                   required
                   value={formData.streetName}
                   onChange={handleChange}
-                  placeholder="Rua das Flores, 123"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  readOnly={cepLoading}
+                  placeholder="Avenida Paulista"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent read-only:bg-gray-50"
+                />
+              </div>
+
+              {/* Número e Complemento */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-1">
+                    Número *
+                  </label>
+                  <input
+                    type="text"
+                    id="number"
+                    name="number"
+                    required
+                    value={formData.number}
+                    onChange={handleChange}
+                    placeholder="1000"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="complement" className="block text-sm font-medium text-gray-700 mb-1">
+                    Complemento
+                  </label>
+                  <input
+                    type="text"
+                    id="complement"
+                    name="complement"
+                    value={formData.complement}
+                    onChange={handleChange}
+                    placeholder="Sala 42 (opcional)"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Bairro */}
+              <div>
+                <label htmlFor="neighborhood" className="block text-sm font-medium text-gray-700 mb-1">
+                  Bairro *
+                </label>
+                <input
+                  type="text"
+                  id="neighborhood"
+                  name="neighborhood"
+                  required
+                  value={formData.neighborhood}
+                  onChange={handleChange}
+                  readOnly={cepLoading}
+                  placeholder="Bela Vista"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent read-only:bg-gray-50"
                 />
               </div>
 
@@ -246,8 +369,9 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
                     required
                     value={formData.city}
                     onChange={handleChange}
+                    readOnly={cepLoading}
                     placeholder="São Paulo"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent read-only:bg-gray-50"
                   />
                 </div>
 
@@ -262,11 +386,11 @@ export function CompanyFormModal({ company, onClose, onSuccess }: CompanyFormMod
                     required
                     value={formData.state}
                     onChange={handleChange}
+                    disabled={cepLoading}
                     placeholder="SP"
                     maxLength={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase disabled:bg-gray-50 disabled:cursor-not-allowed"
                   />
-                  <p className="text-xs text-gray-500 mt-1">2 letras</p>
                 </div>
               </div>
             </div>

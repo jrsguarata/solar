@@ -31,6 +31,13 @@ export class ContactsController {
     return this.contactsService.findAll();
   }
 
+  @Get('company/:companyId')
+  @ApiOperation({ summary: 'Listar contatos de uma empresa (público)' })
+  @ApiResponse({ status: 200, description: 'Lista de contatos da empresa' })
+  async findByCompany(@Param('companyId') companyId: string): Promise<Contact[]> {
+    return this.contactsService.findByCompany(companyId);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COADMIN)

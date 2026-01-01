@@ -49,6 +49,13 @@ export class ContactsService {
     });
   }
 
+  async findByCompany(companyId: string): Promise<Contact[]> {
+    return this.contactRepository.find({
+      where: { companyId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findOne(id: string): Promise<Contact | null> {
     return this.contactRepository.findOne({ where: { id } });
   }

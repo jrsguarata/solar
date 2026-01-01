@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Distributor } from '../../distributors/entities/distributor.entity';
+import { Company } from '../../companies/entities/company.entity';
 
 export enum ContactStatus {
   PENDING = 'PENDING',
@@ -21,15 +21,33 @@ export class Contact {
   @Column()
   phone: string;
 
-  @Column({ nullable: true })
-  company: string;
+  @Column({ length: 9 })
+  cep: string;
+
+  @Column()
+  street: string;
+
+  @Column()
+  number: string;
 
   @Column({ nullable: true })
-  distributorId: string;
+  complement: string;
 
-  @ManyToOne(() => Distributor, { nullable: true })
-  @JoinColumn({ name: 'distributorId' })
-  distributor: Distributor;
+  @Column()
+  neighborhood: string;
+
+  @Column()
+  city: string;
+
+  @Column({ length: 2 })
+  state: string;
+
+  @Column({ name: 'company_id', nullable: true })
+  companyId: string;
+
+  @ManyToOne(() => Company, { nullable: true })
+  @JoinColumn({ name: 'company_id' })
+  companyRelation: Company;
 
   @Column('text')
   message: string;

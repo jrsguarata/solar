@@ -36,7 +36,7 @@ export class ConcessionairesService {
       .leftJoinAndSelect('concessionaire.company', 'company')
       .leftJoinAndSelect('concessionaire.createdByUser', 'createdByUser')
       .leftJoinAndSelect('concessionaire.updatedByUser', 'updatedByUser')
-      .leftJoinAndSelect('concessionaire.deletedByUser', 'deletedByUser');
+      .leftJoinAndSelect('concessionaire.deactivatedByUser', 'deactivatedByUser');
 
     // ADMIN vê todas as concessionárias
     // Outros perfis veem apenas concessionárias da sua empresa
@@ -54,7 +54,7 @@ export class ConcessionairesService {
   async findOne(id: string, currentUser: any): Promise<Concessionaire> {
     const concessionaire = await this.concessionairesRepository.findOne({
       where: { id },
-      relations: ['distributor', 'company', 'createdByUser', 'updatedByUser', 'deletedByUser'],
+      relations: ['distributor', 'company', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
     });
 
     if (!concessionaire) {
