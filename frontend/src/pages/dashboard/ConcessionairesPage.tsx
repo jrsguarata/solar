@@ -31,6 +31,9 @@ export function ConcessionairesPage() {
     cnpj: '',
     zipCode: '',
     streetName: '',
+    number: '',
+    complement: '',
+    neighborhood: '',
     city: '',
     state: '',
   });
@@ -113,6 +116,9 @@ export function ConcessionairesPage() {
       cnpj: '',
       zipCode: '',
       streetName: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
       city: '',
       state: '',
     });
@@ -127,6 +133,9 @@ export function ConcessionairesPage() {
       cnpj: concessionaire.cnpj,
       zipCode: concessionaire.zipCode,
       streetName: concessionaire.streetName,
+      number: concessionaire.number,
+      complement: concessionaire.complement || '',
+      neighborhood: concessionaire.neighborhood,
       city: concessionaire.city,
       state: concessionaire.state,
     });
@@ -273,6 +282,9 @@ export function ConcessionairesPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Cidade/UF
                   </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Ações
                   </th>
@@ -281,14 +293,14 @@ export function ConcessionairesPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center">
+                    <td colSpan={6} className="px-6 py-12 text-center">
                       <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
                       <p className="mt-2 text-gray-600">Carregando...</p>
                     </td>
                   </tr>
                 ) : filteredConcessionaires.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                       Nenhuma concessionária encontrada
                     </td>
                   </tr>
@@ -311,6 +323,17 @@ export function ConcessionairesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {concessionaire.city} / {concessionaire.state}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            concessionaire.isActive
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {concessionaire.isActive ? 'Ativo' : 'Inativo'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
@@ -449,7 +472,7 @@ export function ConcessionairesPage() {
 
               <div>
                 <label htmlFor="streetName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Endereço *
+                  Logradouro *
                 </label>
                 <input
                   type="text"
@@ -458,7 +481,56 @@ export function ConcessionairesPage() {
                   required
                   value={formData.streetName}
                   onChange={handleFormChange}
-                  placeholder="Rua das Flores, 123"
+                  placeholder="Rua das Flores"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-1">
+                    Número *
+                  </label>
+                  <input
+                    type="text"
+                    id="number"
+                    name="number"
+                    required
+                    value={formData.number}
+                    onChange={handleFormChange}
+                    placeholder="123"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="complement" className="block text-sm font-medium text-gray-700 mb-1">
+                    Complemento
+                  </label>
+                  <input
+                    type="text"
+                    id="complement"
+                    name="complement"
+                    value={formData.complement}
+                    onChange={handleFormChange}
+                    placeholder="Sala 101"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="neighborhood" className="block text-sm font-medium text-gray-700 mb-1">
+                  Bairro *
+                </label>
+                <input
+                  type="text"
+                  id="neighborhood"
+                  name="neighborhood"
+                  required
+                  value={formData.neighborhood}
+                  onChange={handleFormChange}
+                  placeholder="Centro"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -533,6 +605,22 @@ export function ConcessionairesPage() {
             </div>
 
             <div className="p-6 space-y-6">
+              {/* Status */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Status</h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                      selectedConcessionaire.isActive
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    {selectedConcessionaire.isActive ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+              </div>
+
               {/* Informações da Distribuidora */}
               <div>
                 <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Distribuidora</h4>
@@ -558,19 +646,33 @@ export function ConcessionairesPage() {
                 <h4 className="text-sm font-semibold text-gray-500 uppercase mb-3">Endereço Completo</h4>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500 w-20">Rua:</span>
+                    <span className="text-sm text-gray-500 w-24">Logradouro:</span>
                     <span className="text-gray-900">{selectedConcessionaire.streetName}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500 w-20">Cidade:</span>
+                    <span className="text-sm text-gray-500 w-24">Número:</span>
+                    <span className="text-gray-900">{selectedConcessionaire.number}</span>
+                  </div>
+                  {selectedConcessionaire.complement && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 w-24">Complemento:</span>
+                      <span className="text-gray-900">{selectedConcessionaire.complement}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-24">Bairro:</span>
+                    <span className="text-gray-900">{selectedConcessionaire.neighborhood}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 w-24">Cidade:</span>
                     <span className="text-gray-900">{selectedConcessionaire.city}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500 w-20">Estado:</span>
+                    <span className="text-sm text-gray-500 w-24">Estado:</span>
                     <span className="text-gray-900">{selectedConcessionaire.state}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500 w-20">CEP:</span>
+                    <span className="text-sm text-gray-500 w-24">CEP:</span>
                     <span className="text-gray-900 font-mono">
                       {formatZipCode(selectedConcessionaire.zipCode)}
                     </span>
@@ -651,14 +753,14 @@ export function ConcessionairesPage() {
                     </div>
                   )}
 
-                  {selectedConcessionaire.deletedAt && (
+                  {selectedConcessionaire.deactivatedAt && (
                     <div className="border-t border-gray-200 pt-3">
-                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Exclusão</label>
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Desativação</label>
                       <div className="space-y-2">
                         <div className="flex justify-between items-start">
-                          <span className="text-sm text-gray-500">Excluído em:</span>
+                          <span className="text-sm text-gray-500">Desativado em:</span>
                           <span className="text-sm text-red-600 text-right">
-                            {new Date(selectedConcessionaire.deletedAt).toLocaleString('pt-BR', {
+                            {new Date(selectedConcessionaire.deactivatedAt).toLocaleString('pt-BR', {
                               day: '2-digit',
                               month: '2-digit',
                               year: 'numeric',
@@ -667,11 +769,11 @@ export function ConcessionairesPage() {
                             })}
                           </span>
                         </div>
-                        {selectedConcessionaire.deletedByUser && (
+                        {selectedConcessionaire.deactivatedByUser && (
                           <div className="flex justify-between items-start">
-                            <span className="text-sm text-gray-500">Excluído por:</span>
+                            <span className="text-sm text-gray-500">Desativado por:</span>
                             <span className="text-sm text-red-600 text-right font-medium">
-                              {selectedConcessionaire.deletedByUser.name}
+                              {selectedConcessionaire.deactivatedByUser.name}
                             </span>
                           </div>
                         )}
