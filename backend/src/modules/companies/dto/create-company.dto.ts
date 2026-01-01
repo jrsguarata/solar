@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 
 export class CreateCompanyDto {
   @ApiProperty({ example: 'COMP001' })
@@ -24,17 +24,31 @@ export class CreateCompanyDto {
   })
   cnpj: string;
 
-  @ApiProperty({ example: '12345678', description: 'CEP (8 caracteres)' })
+  @ApiProperty({ example: '01310100', description: 'CEP (8 dígitos sem hífen)' })
   @IsString({ message: 'CEP deve ser uma string' })
   @IsNotEmpty({ message: 'CEP não pode estar vazio' })
-  @Length(8, 8, { message: 'CEP deve ter 8 caracteres' })
-  @Matches(/^\d{8}$/, { message: 'CEP deve conter apenas números' })
+  @Matches(/^[0-9]{5}-?[0-9]{3}$/, { message: 'CEP deve estar no formato 00000-000 ou 00000000' })
   zipCode: string;
 
-  @ApiProperty({ example: 'Rua das Flores, 123', description: 'Nome da rua' })
+  @ApiProperty({ example: 'Avenida Paulista', description: 'Nome da rua' })
   @IsString({ message: 'Nome da rua deve ser uma string' })
   @IsNotEmpty({ message: 'Nome da rua não pode estar vazio' })
   streetName: string;
+
+  @ApiProperty({ example: '1000', description: 'Número do endereço' })
+  @IsString({ message: 'Número deve ser uma string' })
+  @IsNotEmpty({ message: 'Número não pode estar vazio' })
+  number: string;
+
+  @ApiProperty({ example: 'Sala 42', description: 'Complemento (opcional)', required: false })
+  @IsOptional()
+  @IsString({ message: 'Complemento deve ser uma string' })
+  complement?: string;
+
+  @ApiProperty({ example: 'Bela Vista', description: 'Bairro' })
+  @IsString({ message: 'Bairro deve ser uma string' })
+  @IsNotEmpty({ message: 'Bairro não pode estar vazio' })
+  neighborhood: string;
 
   @ApiProperty({ example: 'São Paulo', description: 'Cidade' })
   @IsString({ message: 'Cidade deve ser uma string' })

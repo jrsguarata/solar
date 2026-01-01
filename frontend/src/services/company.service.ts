@@ -49,6 +49,24 @@ class CompanyService {
   async delete(id: string): Promise<void> {
     await api.delete(`/companies/${id}`);
   }
+
+  /**
+   * Desativar empresa (ADMIN only)
+   * Marca isActive como false
+   */
+  async deactivate(id: string): Promise<Company> {
+    const { data } = await api.patch<Company>(`/companies/${id}`, { isActive: false });
+    return data;
+  }
+
+  /**
+   * Ativar empresa (ADMIN only)
+   * Marca isActive como true
+   */
+  async activate(id: string): Promise<Company> {
+    const { data } = await api.patch<Company>(`/companies/${id}`, { isActive: true });
+    return data;
+  }
 }
 
 export default new CompanyService();

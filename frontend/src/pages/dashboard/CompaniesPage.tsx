@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit2, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { companyService } from '../../services';
@@ -20,7 +20,8 @@ export function CompaniesPage() {
 
   // Modal states
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+  const [showActivateModal, setShowActivateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
@@ -74,25 +75,41 @@ export function CompaniesPage() {
     setShowFormModal(true);
   };
 
-  const handleDelete = (company: Company) => {
-    setSelectedCompany(company);
-    setShowDeleteModal(true);
-  };
-
   const handleView = (company: Company) => {
     setSelectedCompany(company);
     setShowViewModal(true);
   };
 
-  const confirmDelete = async () => {
+  const handleToggleStatus = (company: Company) => {
+    setSelectedCompany(company);
+    if (company.isActive) {
+      setShowDeactivateModal(true);
+    } else {
+      setShowActivateModal(true);
+    }
+  };
+
+  const confirmDeactivate = async () => {
     if (!selectedCompany) return;
 
     try {
-      await companyService.delete(selectedCompany.id);
+      await companyService.deactivate(selectedCompany.id);
       await loadData();
-      setShowDeleteModal(false);
+      setShowDeactivateModal(false);
     } catch (error) {
-      console.error('Erro ao deletar empresa:', error);
+      console.error('Erro ao desativar empresa:', error);
+    }
+  };
+
+  const confirmActivate = async () => {
+    if (!selectedCompany) return;
+
+    try {
+      await companyService.activate(selectedCompany.id);
+      await loadData();
+      setShowActivateModal(false);
+    } catch (error) {
+      console.error('Erro ao ativar empresa:', error);
     }
   };
 
@@ -170,6 +187,9 @@ export function CompaniesPage() {
                     CNPJ
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Cadastro
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -180,14 +200,14 @@ export function CompaniesPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center">
+                    <td colSpan={5} className="px-6 py-12 text-center">
                       <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
                       <p className="mt-2 text-gray-600">Carregando...</p>
                     </td>
                   </tr>
                 ) : filteredCompanies.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                       Nenhuma empresa encontrada
                     </td>
                   </tr>
@@ -199,6 +219,17 @@ export function CompaniesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {formatCNPJ(company.cnpj)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            company.isActive
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {company.isActive ? 'Ativa' : 'Inativa'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {formatDate(company.createdAt)}
@@ -220,11 +251,19 @@ export function CompaniesPage() {
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(company)}
-                            className="p-1 text-red-600 hover:bg-red-50 rounded"
-                            title="Excluir"
+                            onClick={() => handleToggleStatus(company)}
+                            className={`p-1 rounded ${
+                              company.isActive
+                                ? 'text-red-600 hover:bg-red-50'
+                                : 'text-green-600 hover:bg-green-50'
+                            }`}
+                            title={company.isActive ? 'Desativar' : 'Ativar'}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            {company.isActive ? (
+                              <XCircle className="w-4 h-4" />
+                            ) : (
+                              <CheckCircle className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                       </td>
@@ -259,14 +298,29 @@ export function CompaniesPage() {
         />
       )}
 
-      {showDeleteModal && selectedCompany && (
+      {/* Modal de Confirmação - Desativar */}
+      {showDeactivateModal && selectedCompany && (
         <ConfirmModal
-          title="Excluir Empresa"
-          message={`Tem certeza que deseja excluir a empresa "${selectedCompany.name}"? Esta ação não pode ser desfeita.`}
-          confirmText="Excluir"
+          title="Desativar Empresa"
+          message={`Tem certeza que deseja desativar a empresa "${selectedCompany.name}"? A empresa não poderá mais ser utilizada no sistema.`}
+          confirmText="Desativar"
           cancelText="Cancelar"
-          onConfirm={confirmDelete}
-          onCancel={() => setShowDeleteModal(false)}
+          variant="warning"
+          onConfirm={confirmDeactivate}
+          onCancel={() => setShowDeactivateModal(false)}
+        />
+      )}
+
+      {/* Modal de Confirmação - Ativar */}
+      {showActivateModal && selectedCompany && (
+        <ConfirmModal
+          title="Ativar Empresa"
+          message={`Tem certeza que deseja ativar a empresa "${selectedCompany.name}"? A empresa voltará a estar disponível no sistema.`}
+          confirmText="Ativar"
+          cancelText="Cancelar"
+          variant="info"
+          onConfirm={confirmActivate}
+          onCancel={() => setShowActivateModal(false)}
         />
       )}
 
@@ -317,8 +371,24 @@ export function CompaniesPage() {
                     <p className="text-sm text-gray-900">{selectedCompany.zipCode}</p>
                   </div>
                   <div className="border-t border-gray-200 pt-3">
-                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Nome da Rua</label>
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Logradouro</label>
                     <p className="text-sm text-gray-900">{selectedCompany.streetName}</p>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3 grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Número</label>
+                      <p className="text-sm text-gray-900">{selectedCompany.number}</p>
+                    </div>
+                    {selectedCompany.complement && (
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Complemento</label>
+                        <p className="text-sm text-gray-900">{selectedCompany.complement}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Bairro</label>
+                    <p className="text-sm text-gray-900">{selectedCompany.neighborhood}</p>
                   </div>
                   <div className="border-t border-gray-200 pt-3">
                     <label className="text-xs font-medium text-gray-500 uppercase block mb-1">Cidade/Estado</label>
@@ -392,14 +462,14 @@ export function CompaniesPage() {
                     </div>
                   )}
 
-                  {selectedCompany.deletedAt && (
+                  {selectedCompany.deactivatedAt && (
                     <div className="border-t border-gray-200 pt-3">
-                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Exclusão</label>
+                      <label className="text-xs font-medium text-gray-500 uppercase block mb-2">Auditoria de Desativação</label>
                       <div className="space-y-2">
                         <div className="flex justify-between items-start">
-                          <span className="text-sm text-gray-500">Excluído em:</span>
+                          <span className="text-sm text-gray-500">Desativado em:</span>
                           <span className="text-sm text-red-600 text-right">
-                            {new Date(selectedCompany.deletedAt).toLocaleString('pt-BR', {
+                            {new Date(selectedCompany.deactivatedAt).toLocaleString('pt-BR', {
                               day: '2-digit',
                               month: '2-digit',
                               year: 'numeric',
@@ -408,11 +478,11 @@ export function CompaniesPage() {
                             })}
                           </span>
                         </div>
-                        {selectedCompany.deletedByUser && (
+                        {selectedCompany.deactivatedByUser && (
                           <div className="flex justify-between items-start">
-                            <span className="text-sm text-gray-500">Excluído por:</span>
+                            <span className="text-sm text-gray-500">Desativado por:</span>
                             <span className="text-sm text-red-600 text-right font-medium">
-                              {selectedCompany.deletedByUser.name}
+                              {selectedCompany.deactivatedByUser.name}
                             </span>
                           </div>
                         )}
