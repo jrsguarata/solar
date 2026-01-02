@@ -8,4 +8,5 @@ export { default as auditLogService } from './auditLog.service';
 export { default as cessionaireService } from './concessionaire.service';
 export { plantService } from './plant.service';
 export { cooperativeService } from './cooperative.service';
+export { partnerService } from './partner.service';
 export { default as api, getErrorMessage } from './api';

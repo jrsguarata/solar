@@ -10,6 +10,7 @@ import { User, UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CompaniesService } from '../companies/companies.service';
+import { PartnersService } from '../partners/partners.service';
 import { RequestContextService } from '../../common/context/request-context';
 import { AuditLog, AuditAction } from '../../common/entities/audit-log.entity';
 import * as bcrypt from 'bcrypt';
@@ -20,6 +21,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private companiesService: CompaniesService,
+    private partnersService: PartnersService,
   ) {}
 
   async create(createUserDto: CreateUserDto, currentUser?: any): Promise<User> {
@@ -64,6 +66,19 @@ export class UsersService {
       }
     }
 
+    // Validar partnerId: só pode ser preenchido para OPERATOR
+    if (createUserDto.partnerId) {
+      if (createUserDto['role'] !== UserRole.OPERATOR) {
+        throw new BadRequestException('O campo partnerId só pode ser preenchido para usuários com perfil OPERATOR');
+      }
+
+      // Verificar se o parceiro existe
+      const partner = await this.partnersService.findOne(createUserDto.partnerId);
+      if (!partner) {
+        throw new BadRequestException('Parceiro não encontrado');
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.usersRepository.create({
@@ -80,6 +95,11 @@ export class UsersService {
       user.company = { id: createUserDto.companyId } as any;
     }
 
+    // Se tem partnerId, definir a relação
+    if (createUserDto.partnerId) {
+      user.partner = { id: createUserDto.partnerId } as any;
+    }
+
     return this.usersRepository.save(user);
   }
 
@@ -87,7 +107,7 @@ export class UsersService {
     // ADMIN vê todos os usuários
     if (!currentUser || currentUser.role === UserRole.ADMIN) {
       return this.usersRepository.find({
-        relations: ['company', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
+        relations: ['company', 'partner', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
       });
     }
 
@@ -96,6 +116,7 @@ export class UsersService {
       return this.usersRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.company', 'company')
+        .leftJoinAndSelect('user.partner', 'partner')
         .leftJoinAndSelect('user.createdByUser', 'createdByUser')
         .leftJoinAndSelect('user.updatedByUser', 'updatedByUser')
         .leftJoinAndSelect('user.deactivatedByUser', 'deactivatedByUser')
@@ -110,7 +131,7 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['company', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
+      relations: ['company', 'partner', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
     });
 
     if (!user) {
@@ -133,8 +154,25 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     // Verificar se usuário existe
-    await this.findOne(id);
+    const existingUser = await this.findOne(id);
     const userId = RequestContextService.getUserId();
+
+    // Validar partnerId: só pode ser preenchido para OPERATOR
+    if (updateUserDto.partnerId !== undefined) {
+      const targetRole = updateUserDto.role || existingUser.role;
+
+      if (updateUserDto.partnerId && targetRole !== UserRole.OPERATOR) {
+        throw new BadRequestException('O campo partnerId só pode ser preenchido para usuários com perfil OPERATOR');
+      }
+
+      if (updateUserDto.partnerId) {
+        // Verificar se o parceiro existe
+        const partner = await this.partnersService.findOne(updateUserDto.partnerId);
+        if (!partner) {
+          throw new BadRequestException('Parceiro não encontrado');
+        }
+      }
+    }
 
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);

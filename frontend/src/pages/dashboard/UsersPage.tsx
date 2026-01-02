@@ -268,6 +268,9 @@ export function UsersPage() {
                     Empresa
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Parceiro
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -278,14 +281,14 @@ export function UsersPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center">
+                    <td colSpan={8} className="px-6 py-12 text-center">
                       <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
                       <p className="mt-2 text-gray-600">Carregando...</p>
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                       Nenhum usuário encontrado
                     </td>
                   </tr>
@@ -308,6 +311,9 @@ export function UsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {getCompanyName(user.companyId)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {user.partner?.name || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -473,6 +479,16 @@ export function UsersPage() {
                       {selectedUser.company?.name || getCompanyName(selectedUser.companyId) || 'N/A'}
                     </p>
                   </div>
+                  {selectedUser.role === 'OPERATOR' && (
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">
+                        Parceiro
+                      </label>
+                      <p className="text-sm text-gray-900 mt-1">
+                        {selectedUser.partner?.name || 'N/A'}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <label className="text-xs font-medium text-gray-500 uppercase">
                       Status

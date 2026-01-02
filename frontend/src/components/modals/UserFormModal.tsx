@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { userService } from '../../services';
+import { userService, partnerService } from '../../services';
 import { useAuth } from '../../presenters/useAuth';
 import { formatMobile, unformatMobile } from '../../utils/formatters';
-import type { User, Company, UserRole, CreateUserDto, UpdateUserDto } from '../../models';
+import type { User, Company, Partner, UserRole, CreateUserDto, UpdateUserDto } from '../../models';
 
 interface UserFormModalProps {
   user: User | null;
@@ -23,11 +23,26 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
     mobile: user?.mobile || '',
     role: user?.role || ('USER' as UserRole),
     companyId: user?.companyId || '',
+    partnerId: user?.partnerId || '',
     password: '',
   });
 
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadPartners();
+  }, []);
+
+  const loadPartners = async () => {
+    try {
+      const data = await partnerService.getAll();
+      setPartners(data.filter(p => p.isActive)); // Apenas parceiros ativos
+    } catch (error) {
+      console.error('Erro ao carregar parceiros:', error);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -38,6 +53,13 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
       setFormData({
         ...formData,
         mobile: formatted,
+      });
+    } else if (name === 'role') {
+      // Se mudou o role e não é OPERATOR, limpar partnerId
+      setFormData({
+        ...formData,
+        role: value as UserRole,
+        partnerId: value === 'OPERATOR' ? formData.partnerId : '',
       });
     } else {
       setFormData({
@@ -62,6 +84,7 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
           mobile: unformatMobile(formData.mobile), // Remove máscara antes de enviar
           role: formData.role,
           companyId: formData.companyId || undefined,
+          partnerId: formData.partnerId || undefined,
         };
         await userService.update(user.id, updateData);
       } else {
@@ -73,6 +96,7 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
           role: formData.role,
           password: formData.password,
           companyId: formData.companyId || undefined,
+          partnerId: formData.partnerId || undefined,
         };
         await userService.create(createData);
       }
@@ -207,6 +231,32 @@ export function UserFormModal({ user, companies, onClose, onSuccess }: UserFormM
                 : 'Opcional. ADMIN pode não ter empresa.'}
             </p>
           </div>
+
+          {/* Parceiro (apenas para OPERATOR) */}
+          {formData.role === 'OPERATOR' && (
+            <div>
+              <label htmlFor="partnerId" className="block text-sm font-medium text-gray-700 mb-1">
+                Parceiro
+              </label>
+              <select
+                id="partnerId"
+                name="partnerId"
+                value={formData.partnerId}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Nenhum</option>
+                {partners.map((partner) => (
+                  <option key={partner.id} value={partner.id}>
+                    {partner.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Opcional. Apenas usuários OPERATOR podem ter parceiro associado.
+              </p>
+            </div>
+          )}
 
           {/* Senha (apenas para criação) */}
           {!isEditing && (

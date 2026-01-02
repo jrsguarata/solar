@@ -94,6 +94,8 @@ export function EMP01LandingPage({ company, companyCode }: EMP01LandingPageProps
         phone: '',
         cep: '',
         street: '',
+        number: '',
+        complement: '',
         neighborhood: '',
         city: '',
         state: '',

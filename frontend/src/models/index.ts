@@ -2,6 +2,7 @@
 export * from './User';
 export * from './Auth';
 export * from './Company';
+export * from './Partner';
 export * from './Distributor';
 export * from './Contact';
 export * from './AuditLog';

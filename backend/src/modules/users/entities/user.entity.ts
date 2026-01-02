@@ -7,6 +7,7 @@ import {
   RelationId,
 } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
+import { Partner } from '../../partners/entities/partner.entity';
 import { BaseEntityWithoutDelete } from '../../../common/entities/base-without-delete.entity';
 
 export enum UserRole {
@@ -45,6 +46,13 @@ export class User extends BaseEntityWithoutDelete {
 
   @RelationId((user: User) => user.company)
   companyId?: string;
+
+  @ManyToOne(() => Partner, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'partner_id' })
+  partner?: Partner;
+
+  @RelationId((user: User) => user.partner)
+  partnerId?: string;
 
   @Column({ name: 'is_active', default: true })
   @Index()

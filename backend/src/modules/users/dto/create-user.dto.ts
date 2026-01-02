@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, IsUUID, Matches, IsEnum } from 'class-validator';
 import { UserRole } from '../entities/user.entity';
+import { IsPartnerOnlyForOperator } from '../../../common/validators/partner-only-for-operator.validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'john@example.com' })
@@ -35,4 +36,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsUUID(undefined, { message: 'ID da empresa deve ser um UUID válido' })
   companyId?: string;
+
+  @ApiProperty({ example: 'uuid-do-parceiro', required: false, description: 'Apenas para usuários OPERATOR' })
+  @IsOptional()
+  @IsUUID(undefined, { message: 'ID do parceiro deve ser um UUID válido' })
+  @IsPartnerOnlyForOperator()
+  partnerId?: string;
 }

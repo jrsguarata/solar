@@ -16,6 +16,8 @@ export interface User {
   isActive: boolean;
   companyId?: string;
   company?: { id: string; name: string; code: string };
+  partnerId?: string;
+  partner?: { id: string; name: string; code: string };
   createdAt: string;
   createdBy?: string;
   createdByUser?: { id: string; name: string };
@@ -35,6 +37,7 @@ export interface CreateUserDto {
   password: string;
   role: UserRole;
   companyId?: string;
+  partnerId?: string;
 }
 
 // Interface para atualização de usuário
@@ -44,4 +47,5 @@ export interface UpdateUserDto {
   mobile?: string;
   role?: UserRole;
   companyId?: string;
+  partnerId?: string;
 }

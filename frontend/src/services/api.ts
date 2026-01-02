@@ -86,6 +86,21 @@ api.interceptors.response.use(
 
           return Promise.reject(refreshError);
         }
+      } else {
+        // Sem refresh token, limpar e redirecionar
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+
+        if (!window.location.pathname.includes('/login')) {
+          toast.error('Sessão expirada. Por favor, faça login novamente.', {
+            duration: 4000,
+          });
+
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 500);
+        }
       }
     }
 

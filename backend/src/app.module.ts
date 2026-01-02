@@ -15,6 +15,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ConcessionairesModule } from './modules/concessionaires/concessionaires.module';
 import { PlantsModule } from './modules/plants/plants.module';
 import { CooperativesModule } from './modules/cooperatives/cooperatives.module';
+import { PartnersModule } from './modules/partners/partners.module';
 import { HealthModule } from './modules/health/health.module';
 import { validate } from './config/env.validation';
 import { CacheConfigService } from './config/cache.config';
@@ -47,6 +48,7 @@ import { CacheConfigService } from './config/cache.config';
     ConcessionairesModule,
     PlantsModule,
     CooperativesModule,
+    PartnersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
