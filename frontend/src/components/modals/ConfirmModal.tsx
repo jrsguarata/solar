@@ -7,7 +7,7 @@ interface ConfirmModalProps {
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
-  variant?: 'danger' | 'warning' | 'info';
+  variant?: 'danger' | 'warning' | 'info' | 'success';
 }
 
 export function ConfirmModal({
@@ -34,6 +34,11 @@ export function ConfirmModal({
       bg: 'bg-blue-100',
       text: 'text-blue-600',
       button: 'bg-blue-600 hover:bg-blue-700',
+    },
+    success: {
+      bg: 'bg-green-100',
+      text: 'text-green-600',
+      button: 'bg-green-600 hover:bg-green-700',
     },
   };
 
