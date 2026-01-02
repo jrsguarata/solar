@@ -43,6 +43,15 @@ export class Cooperative extends BaseEntity {
   @Column({ name: 'street_name', length: 255 })
   streetName: string;
 
+  @Column({ length: 10 })
+  number: string;
+
+  @Column({ length: 100, nullable: true })
+  complement?: string;
+
+  @Column({ length: 100 })
+  neighborhood: string;
+
   @Column({ length: 100 })
   city: string;
 
@@ -57,4 +66,7 @@ export class Cooperative extends BaseEntity {
 
   @Column({ name: 'operation_approval_date', type: 'date', nullable: true })
   operationApprovalDate?: Date;
+
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
 }

@@ -46,10 +46,25 @@ export class CreateCooperativeDto {
   @Matches(/^\d{8}$/, { message: 'CEP deve conter apenas números' })
   zipCode: string;
 
-  @ApiProperty({ example: 'Rua das Flores, 123', description: 'Nome da rua' })
+  @ApiProperty({ example: 'Rua das Flores', description: 'Nome da rua' })
   @IsString({ message: 'Nome da rua deve ser uma string' })
   @IsNotEmpty({ message: 'Nome da rua não pode estar vazio' })
   streetName: string;
+
+  @ApiProperty({ example: '123', description: 'Número do endereço' })
+  @IsString({ message: 'Número deve ser uma string' })
+  @IsNotEmpty({ message: 'Número não pode estar vazio' })
+  number: string;
+
+  @ApiProperty({ example: 'Sala 101', description: 'Complemento (opcional)', required: false })
+  @IsString({ message: 'Complemento deve ser uma string' })
+  @IsOptional()
+  complement?: string;
+
+  @ApiProperty({ example: 'Centro', description: 'Bairro' })
+  @IsString({ message: 'Bairro deve ser uma string' })
+  @IsNotEmpty({ message: 'Bairro não pode estar vazio' })
+  neighborhood: string;
 
   @ApiProperty({ example: 'São Paulo', description: 'Cidade' })
   @IsString({ message: 'Cidade deve ser uma string' })

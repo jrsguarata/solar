@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit2, Power, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { cooperativeService } from '../../services';
@@ -20,7 +20,7 @@ export function CooperativesPage() {
   const itemsPerPage = 10;
 
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showToggleModal, setShowToggleModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedCooperative, setSelectedCooperative] = useState<Cooperative | null>(null);
 
@@ -84,19 +84,21 @@ export function CooperativesPage() {
     setShowFormModal(true);
   };
 
-  const handleDelete = (cooperative: Cooperative) => {
+  const handleToggleStatus = (cooperative: Cooperative) => {
     setSelectedCooperative(cooperative);
-    setShowDeleteModal(true);
+    setShowToggleModal(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmToggleStatus = async () => {
     if (!selectedCooperative) return;
     try {
-      await cooperativeService.delete(selectedCooperative.id);
+      await cooperativeService.update(selectedCooperative.id, {
+        isActive: !selectedCooperative.isActive,
+      });
       await loadData();
-      setShowDeleteModal(false);
+      setShowToggleModal(false);
     } catch (error) {
-      console.error('Erro ao deletar cooperativa:', error);
+      console.error('Erro ao alterar status da cooperativa:', error);
     }
   };
 
@@ -142,14 +144,15 @@ export function CooperativesPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">CNPJ</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Energia Mensal (kWh)</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cidade/UF</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y">
                 {loading ? (
-                  <tr><td colSpan={8} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
+                  <tr><td colSpan={9} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
                 ) : filteredCooperatives.length === 0 ? (
-                  <tr><td colSpan={8} className="px-6 py-12 text-center text-gray-500">Nenhuma cooperativa encontrada</td></tr>
+                  <tr><td colSpan={9} className="px-6 py-12 text-center text-gray-500">Nenhuma cooperativa encontrada</td></tr>
                 ) : (
                   currentPageCooperatives.map((cooperative) => (
                     <tr key={cooperative.id} className="hover:bg-gray-50">
@@ -160,13 +163,22 @@ export function CooperativesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{formatCNPJ(cooperative.cnpj)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.monthlyEnergy.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{cooperative.city} - {cooperative.state}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          cooperative.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {cooperative.isActive ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button onClick={() => handleView(cooperative)} className="p-1 text-gray-600 hover:bg-gray-50 rounded" title="Visualizar"><Eye className="w-4 h-4" /></button>
                           {!isOperator && (
                             <>
                               <button onClick={() => handleEdit(cooperative)} className="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
-                              <button onClick={() => handleDelete(cooperative)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                              <button onClick={() => handleToggleStatus(cooperative)} className={`p-1 rounded ${
+                                cooperative.isActive ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'
+                              }`} title={cooperative.isActive ? 'Desativar' : 'Ativar'}><Power className="w-4 h-4" /></button>
                             </>
                           )}
                         </div>
@@ -192,8 +204,19 @@ export function CooperativesPage() {
         <ViewCooperativeModal cooperative={selectedCooperative} onClose={() => setShowViewModal(false)} />
       )}
 
-      {showDeleteModal && selectedCooperative && (
-        <ConfirmModal title="Excluir Cooperativa" message={`Tem certeza que deseja excluir a cooperativa "${selectedCooperative.name}"? Esta ação não pode ser desfeita.`} confirmText="Excluir" cancelText="Cancelar" onConfirm={confirmDelete} onCancel={() => setShowDeleteModal(false)} />
+      {showToggleModal && selectedCooperative && (
+        <ConfirmModal
+          title={selectedCooperative.isActive ? 'Desativar Cooperativa' : 'Ativar Cooperativa'}
+          message={selectedCooperative.isActive
+            ? `Tem certeza que deseja desativar a cooperativa "${selectedCooperative.name}"?`
+            : `Tem certeza que deseja ativar a cooperativa "${selectedCooperative.name}"?`
+          }
+          confirmText={selectedCooperative.isActive ? 'Desativar' : 'Ativar'}
+          cancelText="Cancelar"
+          variant={selectedCooperative.isActive ? 'danger' : 'success'}
+          onConfirm={confirmToggleStatus}
+          onCancel={() => setShowToggleModal(false)}
+        />
       )}
     </DashboardLayout>
   );
