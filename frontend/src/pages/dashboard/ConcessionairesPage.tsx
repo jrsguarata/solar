@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit2, Power, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
@@ -21,7 +21,7 @@ export function ConcessionairesPage() {
 
   // Modal states
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showToggleModal, setShowToggleModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedConcessionaire, setSelectedConcessionaire] = useState<Concessionaire | null>(null);
 
@@ -143,9 +143,9 @@ export function ConcessionairesPage() {
     setShowFormModal(true);
   };
 
-  const handleDelete = (concessionaire: Concessionaire) => {
+  const handleToggleStatus = (concessionaire: Concessionaire) => {
     setSelectedConcessionaire(concessionaire);
-    setShowDeleteModal(true);
+    setShowToggleModal(true);
   };
 
   const handleView = (concessionaire: Concessionaire) => {
@@ -203,15 +203,17 @@ export function ConcessionairesPage() {
     }
   };
 
-  const confirmDelete = async () => {
+  const confirmToggleStatus = async () => {
     if (!selectedConcessionaire) return;
 
     try {
-      await cessionaireService.delete(selectedConcessionaire.id);
+      await cessionaireService.update(selectedConcessionaire.id, {
+        isActive: !selectedConcessionaire.isActive,
+      });
       await loadData();
-      setShowDeleteModal(false);
+      setShowToggleModal(false);
     } catch (error) {
-      console.error('Erro ao deletar concessionária:', error);
+      console.error('Erro ao alterar status da concessionária:', error);
     }
   };
 
@@ -377,11 +379,15 @@ export function ConcessionairesPage() {
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(concessionaire)}
-                            className="p-1 text-red-600 hover:bg-red-50 rounded"
-                            title="Excluir"
+                            onClick={() => handleToggleStatus(concessionaire)}
+                            className={`p-1 rounded ${
+                              concessionaire.isActive
+                                ? 'text-red-600 hover:bg-red-50'
+                                : 'text-green-600 hover:bg-green-50'
+                            }`}
+                            title={concessionaire.isActive ? 'Desativar' : 'Ativar'}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Power className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -600,15 +606,19 @@ export function ConcessionairesPage() {
       )}
 
       {/* Modal de Confirmação de Exclusão */}
-      {showDeleteModal && selectedConcessionaire && (
+      {showToggleModal && selectedConcessionaire && (
         <ConfirmModal
-          title="Excluir Concessionária"
-          message={`Tem certeza que deseja excluir a concessionária com CNPJ ${formatCNPJ(selectedConcessionaire.cnpj)}? Esta ação não pode ser desfeita.`}
-          confirmText="Excluir"
+          title={selectedConcessionaire.isActive ? 'Desativar Concessionária' : 'Ativar Concessionária'}
+          message={
+            selectedConcessionaire.isActive
+              ? `Tem certeza que deseja desativar a concessionária com CNPJ ${formatCNPJ(selectedConcessionaire.cnpj)}?`
+              : `Tem certeza que deseja ativar a concessionária com CNPJ ${formatCNPJ(selectedConcessionaire.cnpj)}?`
+          }
+          confirmText={selectedConcessionaire.isActive ? 'Desativar' : 'Ativar'}
           cancelText="Cancelar"
-          variant="danger"
-          onConfirm={confirmDelete}
-          onCancel={() => setShowDeleteModal(false)}
+          variant={selectedConcessionaire.isActive ? 'danger' : 'success'}
+          onConfirm={confirmToggleStatus}
+          onCancel={() => setShowToggleModal(false)}
         />
       )}
 
