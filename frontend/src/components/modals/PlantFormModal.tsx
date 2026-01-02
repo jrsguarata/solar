@@ -23,6 +23,9 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
     consumerUnit: plant?.consumerUnit || '',
     zipCode: plant?.zipCode || '',
     streetName: plant?.streetName || '',
+    number: plant?.number || '',
+    complement: plant?.complement || '',
+    neighborhood: plant?.neighborhood || '',
     city: plant?.city || '',
     state: plant?.state || '',
   });
@@ -127,7 +130,7 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Potência Instalada (kWh) *</label>
+              <label className="block text-sm font-medium mb-1">Potência Instalada (kVA) *</label>
               <input type="number" step="0.01" name="installedPower" required value={formData.installedPower} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
             </div>
             <div>
@@ -160,6 +163,22 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
             <div className="mt-4">
               <label className="block text-sm font-medium mb-1">Rua *</label>
               <input type="text" name="streetName" required value={formData.streetName} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Número *</label>
+                <input type="text" name="number" required value={formData.number} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" placeholder="123" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Complemento</label>
+                <input type="text" name="complement" value={formData.complement} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" placeholder="Sala 101" />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">Bairro *</label>
+              <input type="text" name="neighborhood" required value={formData.neighborhood} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg" />
             </div>
 
             <div className="mt-4">

@@ -36,7 +36,7 @@ export function ViewPlantModal({ plant, onClose }: ViewPlantModalProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Potência Instalada (kWh)</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Potência Instalada (kVA)</label>
               <p className="text-gray-900">{Number(plant.installedPower).toFixed(2)}</p>
             </div>
             <div>
