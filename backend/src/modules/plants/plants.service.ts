@@ -34,6 +34,7 @@ export class PlantsService {
       .createQueryBuilder('plant')
       .leftJoinAndSelect('plant.company', 'company')
       .leftJoinAndSelect('plant.concessionaire', 'concessionaire')
+      .leftJoinAndSelect('concessionaire.distributor', 'distributor')
       .leftJoinAndSelect('plant.createdByUser', 'createdByUser')
       .leftJoinAndSelect('plant.updatedByUser', 'updatedByUser')
       .leftJoinAndSelect('plant.deactivatedByUser', 'deactivatedByUser')
@@ -55,7 +56,7 @@ export class PlantsService {
   async findOne(id: string, currentUser: any): Promise<Plant> {
     const plant = await this.plantsRepository.findOne({
       where: { id },
-      relations: ['company', 'concessionaire', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
+      relations: ['company', 'concessionaire', 'concessionaire.distributor', 'createdByUser', 'updatedByUser', 'deactivatedByUser'],
       withDeleted: true, // Permite encontrar usinas desativadas
     });
 
