@@ -22,6 +22,9 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
     cnpj: cooperative?.cnpj || '',
     zipCode: cooperative?.zipCode || '',
     streetName: cooperative?.streetName || '',
+    number: cooperative?.number || '',
+    complement: cooperative?.complement || '',
+    neighborhood: cooperative?.neighborhood || '',
     city: cooperative?.city || '',
     state: cooperative?.state || '',
     monthlyEnergy: cooperative?.monthlyEnergy?.toString() || '',
@@ -64,12 +67,6 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
       if (value.length > 14) value = value.substring(0, 14);
     }
 
-    // Format zipCode - apenas números, máximo 8
-    if (e.target.name === 'zipCode') {
-      value = value.replace(/\D/g, '');
-      if (value.length > 8) value = value.substring(0, 8);
-    }
-
     // Format state - apenas letras maiúsculas, máximo 2
     if (e.target.name === 'state') {
       value = value.toUpperCase().replace(/[^A-Z]/g, '');
@@ -80,6 +77,31 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
       ...formData,
       [e.target.name]: value,
     });
+  };
+
+  const handleZipCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const zipCode = e.target.value.replace(/\D/g, '');
+    setFormData((prev) => ({ ...prev, zipCode }));
+
+    // Buscar endereço quando CEP tiver 8 dígitos
+    if (zipCode.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`);
+        const data = await response.json();
+
+        if (!data.erro) {
+          setFormData((prev) => ({
+            ...prev,
+            streetName: data.logradouro || '',
+            neighborhood: data.bairro || '',
+            city: data.localidade || '',
+            state: data.uf || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+      }
+    }
   };
 
   const formatCNPJDisplay = (cnpj: string) => {
@@ -113,6 +135,9 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
           cnpj,
           zipCode: formData.zipCode,
           streetName: formData.streetName,
+          number: formData.number,
+          complement: formData.complement || undefined,
+          neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
           monthlyEnergy: parseFloat(formData.monthlyEnergy),
@@ -129,6 +154,9 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
           cnpj,
           zipCode: formData.zipCode,
           streetName: formData.streetName,
+          number: formData.number,
+          complement: formData.complement || undefined,
+          neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
           monthlyEnergy: parseFloat(formData.monthlyEnergy),
@@ -269,57 +297,23 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
 
             <div className="space-y-4">
               {/* CEP */}
-              <div>
-                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
-                  CEP *
-                </label>
-                <input
-                  type="text"
-                  id="zipCode"
-                  name="zipCode"
-                  required
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  placeholder="12345678"
-                  maxLength={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">Digite apenas os números (8 dígitos)</p>
-              </div>
-
-              {/* Nome da Rua */}
-              <div>
-                <label htmlFor="streetName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome da Rua *
-                </label>
-                <input
-                  type="text"
-                  id="streetName"
-                  name="streetName"
-                  required
-                  value={formData.streetName}
-                  onChange={handleChange}
-                  placeholder="Rua das Flores, 123"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Cidade e Estado */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                    Cidade *
+                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                    CEP *
                   </label>
                   <input
                     type="text"
-                    id="city"
-                    name="city"
+                    id="zipCode"
+                    name="zipCode"
                     required
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="São Paulo"
+                    value={formData.zipCode}
+                    onChange={handleZipCodeChange}
+                    placeholder="12345678"
+                    maxLength={8}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                  <p className="text-xs text-gray-500 mt-1">Digite o CEP para buscar automaticamente</p>
                 </div>
 
                 <div>
@@ -337,8 +331,92 @@ export function CooperativeFormModal({ cooperative, onClose, onSuccess }: Cooper
                     maxLength={2}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
                   />
-                  <p className="text-xs text-gray-500 mt-1">2 letras</p>
                 </div>
+              </div>
+
+              {/* Nome da Rua */}
+              <div>
+                <label htmlFor="streetName" className="block text-sm font-medium text-gray-700 mb-1">
+                  Rua *
+                </label>
+                <input
+                  type="text"
+                  id="streetName"
+                  name="streetName"
+                  required
+                  value={formData.streetName}
+                  onChange={handleChange}
+                  placeholder="Rua das Flores"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Número e Complemento */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="number" className="block text-sm font-medium text-gray-700 mb-1">
+                    Número *
+                  </label>
+                  <input
+                    type="text"
+                    id="number"
+                    name="number"
+                    required
+                    value={formData.number}
+                    onChange={handleChange}
+                    placeholder="123"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="complement" className="block text-sm font-medium text-gray-700 mb-1">
+                    Complemento
+                  </label>
+                  <input
+                    type="text"
+                    id="complement"
+                    name="complement"
+                    value={formData.complement}
+                    onChange={handleChange}
+                    placeholder="Sala 101"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Bairro */}
+              <div>
+                <label htmlFor="neighborhood" className="block text-sm font-medium text-gray-700 mb-1">
+                  Bairro *
+                </label>
+                <input
+                  type="text"
+                  id="neighborhood"
+                  name="neighborhood"
+                  required
+                  value={formData.neighborhood}
+                  onChange={handleChange}
+                  placeholder="Centro"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Cidade */}
+              <div>
+                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                  Cidade *
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  required
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder="São Paulo"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
             </div>
           </div>

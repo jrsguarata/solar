@@ -91,6 +91,22 @@ export function ViewCooperativeModal({ cooperative, onClose }: ViewCooperativeMo
               <p className="text-gray-900">{cooperative.streetName}</p>
             </div>
 
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Número</label>
+                <p className="text-gray-900">{cooperative.number}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Complemento</label>
+                <p className="text-gray-900">{cooperative.complement || '-'}</p>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-600 mb-1">Bairro</label>
+              <p className="text-gray-900">{cooperative.neighborhood}</p>
+            </div>
+
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-600 mb-1">Cidade</label>
               <p className="text-gray-900">{cooperative.city}</p>
