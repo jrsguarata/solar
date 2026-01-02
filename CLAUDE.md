@@ -2204,3 +2204,45 @@ throw new NotFoundException(`User with ID ${id} not found`);
 throw new BadRequestException('Invalid email format');
 throw new UnauthorizedException('Invalid credentials');
 throw new
+---
+
+## 📝 Sprint Log - Janeiro 2025
+
+### Sprint 2 - Soft Delete e Endereçamento Completo (02/01/2025)
+
+**Objetivo:** Implementar soft delete e campos de endereçamento completo (número, complemento, bairro) nas tabelas de concessionárias, usinas e cooperativas.
+
+**Implementações Realizadas:**
+
+1. **Concessionárias (Concessionaires)** ✅
+   - Soft delete com `isActive`, `deactivatedAt`, `deactivatedBy`
+   - Campos: `number`, `complement`, `neighborhood`
+   - Frontend: Toggle ativação/desativação com ícone Power
+   - Busca automática de endereço via ViaCEP
+
+2. **Usinas (Plants)** ✅
+   - Soft delete com `isActive`, `deactivatedAt`, `deactivatedBy`
+   - Campos: `number`, `complement`, `neighborhood`
+   - Frontend: Toggle ativação/desativação com ícone Power
+   - Backend: Service com audit log completo
+
+3. **Cooperativas (Cooperatives)** ✅
+   - Soft delete com `isActive`, `deactivatedAt`, `deactivatedBy`
+   - Campos: `number`, `complement`, `neighborhood`
+   - Frontend: Toggle ativação/desativação com ícone Power
+   - Backend: Service com audit log completo
+
+**Padrão Estabelecido:**
+
+Todas as entidades principais seguem agora o padrão:
+- **Soft Delete**: `isActive` boolean, `deactivatedAt` timestamp, `deactivatedBy` UUID (FK users)
+- **Endereço Completo**: `zipCode`, `streetName`, `number`, `complement?`, `neighborhood`, `city`, `state`
+- **Auditoria**: `createdBy`, `updatedBy`, `deactivatedBy` (FKs para users com ON DELETE SET NULL)
+- **Frontend**: Botão Power com cores dinâmicas (vermelho=desativar, verde=ativar)
+- **Modal**: ConfirmModal com variantes `danger` e `success`
+
+**Commits:**
+- `9d73b39` - refactor: soft delete concessionárias
+- `d7637ea` - feat: soft delete plants
+- `be9d9d4` - feat: soft delete cooperatives
+
