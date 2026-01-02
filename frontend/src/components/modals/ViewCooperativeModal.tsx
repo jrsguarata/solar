@@ -69,7 +69,7 @@ export function ViewCooperativeModal({ cooperative, onClose }: ViewCooperativeMo
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Data de Aprovação de Operação</label>
-              <p className="text-gray-900">{formatDate(cooperative.operationApprovalDate)}</p>
+              <p className="text-gray-900">{cooperative.operationApprovalDate ? formatDate(cooperative.operationApprovalDate) : '-'}</p>
             </div>
           </div>
 
@@ -94,6 +94,29 @@ export function ViewCooperativeModal({ cooperative, onClose }: ViewCooperativeMo
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-600 mb-1">Cidade</label>
               <p className="text-gray-900">{cooperative.city}</p>
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Status</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Status Atual</label>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  cooperative.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {cooperative.isActive ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
+              {!cooperative.isActive && cooperative.deactivatedAt && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Desativado em</label>
+                  <p className="text-gray-900">{new Date(cooperative.deactivatedAt).toLocaleString('pt-BR')}</p>
+                  {cooperative.deactivatedByUser && (
+                    <p className="text-sm text-gray-500">por {cooperative.deactivatedByUser.name}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

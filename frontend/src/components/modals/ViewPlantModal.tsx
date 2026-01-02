@@ -75,6 +75,29 @@ export function ViewPlantModal({ plant, onClose }: ViewPlantModalProps) {
           </div>
 
           <div className="border-t pt-4">
+            <h3 className="font-semibold mb-3">Status</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Status Atual</label>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  plant.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {plant.isActive ? 'Ativo' : 'Inativo'}
+                </span>
+              </div>
+              {!plant.isActive && plant.deactivatedAt && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Desativado em</label>
+                  <p className="text-gray-900">{new Date(plant.deactivatedAt).toLocaleString('pt-BR')}</p>
+                  {plant.deactivatedByUser && (
+                    <p className="text-sm text-gray-500">por {plant.deactivatedByUser.name}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
             <h3 className="font-semibold mb-3">Informações de Auditoria</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
