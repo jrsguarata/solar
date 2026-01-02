@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { seedInitialAdmin } from './initial-admin.seed';
+import { seedDistributors } from './distributors.seed';
 import { dataSource } from '../typeorm.config';
 
 async function runSeeds() {
@@ -12,6 +13,7 @@ async function runSeeds() {
 
     // Executar seeds
     await seedInitialAdmin(dataSource);
+    await seedDistributors(dataSource);
 
     console.log('\n✅ Seeds executados com sucesso!');
     process.exit(0);
