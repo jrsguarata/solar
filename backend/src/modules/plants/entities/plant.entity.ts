@@ -45,9 +45,21 @@ export class Plant extends BaseEntity {
   @Column({ name: 'street_name', length: 255 })
   streetName: string;
 
+  @Column({ length: 10 })
+  number: string;
+
+  @Column({ length: 100, nullable: true })
+  complement?: string;
+
+  @Column({ length: 100 })
+  neighborhood: string;
+
   @Column({ length: 100 })
   city: string;
 
   @Column({ length: 2 })
   state: string;
+
+  @Column({ name: 'is_active', default: true })
+  isActive: boolean;
 }

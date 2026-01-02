@@ -1,4 +1,15 @@
 import { PartialType } from '@nestjs/swagger';
+import { IsBoolean, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { CreatePlantDto } from './create-plant.dto';
 
-export class UpdatePlantDto extends PartialType(CreatePlantDto) {}
+export class UpdatePlantDto extends PartialType(CreatePlantDto) {
+  @ApiProperty({
+    example: true,
+    description: 'Status de ativação da usina',
+    required: false
+  })
+  @IsBoolean({ message: 'isActive deve ser um boolean' })
+  @IsOptional()
+  isActive?: boolean;
+}

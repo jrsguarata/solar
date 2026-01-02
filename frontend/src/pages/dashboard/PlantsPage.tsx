@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit2, Power, Eye } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Pagination } from '../../components/common/Pagination';
 import { plantService } from '../../services';
@@ -17,7 +17,7 @@ export function PlantsPage() {
   const itemsPerPage = 10;
 
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showToggleModal, setShowToggleModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
@@ -72,19 +72,21 @@ export function PlantsPage() {
     setShowFormModal(true);
   };
 
-  const handleDelete = (plant: Plant) => {
+  const handleToggleStatus = (plant: Plant) => {
     setSelectedPlant(plant);
-    setShowDeleteModal(true);
+    setShowToggleModal(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmToggleStatus = async () => {
     if (!selectedPlant) return;
     try {
-      await plantService.delete(selectedPlant.id);
+      await plantService.update(selectedPlant.id, {
+        isActive: !selectedPlant.isActive,
+      });
       await loadData();
-      setShowDeleteModal(false);
+      setShowToggleModal(false);
     } catch (error) {
-      console.error('Erro ao deletar usina:', error);
+      console.error('Erro ao alterar status da usina:', error);
     }
   };
 
@@ -118,17 +120,25 @@ export function PlantsPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Potência (kWh)</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Concessionária</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Un. Consumidora</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cidade/UF</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y">
                 {loading ? (
-                  <tr><td colSpan={8} className="px-6 py-12 text-center"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div><p className="mt-2 text-gray-600">Carregando...</p></td></tr>
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-r-transparent"></div>
+                      <p className="mt-2 text-gray-600">Carregando...</p>
+                    </td>
+                  </tr>
                 ) : filteredPlants.length === 0 ? (
-                  <tr><td colSpan={8} className="px-6 py-12 text-center text-gray-500">Nenhuma usina encontrada</td></tr>
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                      Nenhuma usina encontrada
+                    </td>
+                  </tr>
                 ) : (
                   currentPagePlants.map((plant) => (
                     <tr key={plant.id} className="hover:bg-gray-50">
@@ -136,14 +146,45 @@ export function PlantsPage() {
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{plant.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.company?.name || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{Number(plant.installedPower).toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.concessionaire?.distributor?.name || '-'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono">{plant.consumerUnit}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{plant.city} - {plant.state}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            plant.isActive
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {plant.isActive ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => handleView(plant)} className="p-1 text-gray-600 hover:bg-gray-50 rounded" title="Visualizar"><Eye className="w-4 h-4" /></button>
-                          <button onClick={() => handleEdit(plant)} className="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => handleDelete(plant)} className="p-1 text-red-600 hover:bg-red-50 rounded" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                          <button
+                            onClick={() => handleView(plant)}
+                            className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                            title="Visualizar"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(plant)}
+                            className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                            title="Editar"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleToggleStatus(plant)}
+                            className={`p-1 rounded ${
+                              plant.isActive
+                                ? 'text-red-600 hover:bg-red-50'
+                                : 'text-green-600 hover:bg-green-50'
+                            }`}
+                            title={plant.isActive ? 'Desativar' : 'Ativar'}
+                          >
+                            <Power className="w-4 h-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -167,8 +208,20 @@ export function PlantsPage() {
         <ViewPlantModal plant={selectedPlant} onClose={() => setShowViewModal(false)} />
       )}
 
-      {showDeleteModal && selectedPlant && (
-        <ConfirmModal title="Excluir Usina" message={`Tem certeza que deseja excluir a usina "{selectedPlant.name}"? Esta ação não pode ser desfeita.`} confirmText="Excluir" cancelText="Cancelar" onConfirm={confirmDelete} onCancel={() => setShowDeleteModal(false)} />
+      {showToggleModal && selectedPlant && (
+        <ConfirmModal
+          title={selectedPlant.isActive ? 'Desativar Usina' : 'Ativar Usina'}
+          message={
+            selectedPlant.isActive
+              ? `Tem certeza que deseja desativar a usina "${selectedPlant.name}"?`
+              : `Tem certeza que deseja ativar a usina "${selectedPlant.name}"?`
+          }
+          confirmText={selectedPlant.isActive ? 'Desativar' : 'Ativar'}
+          cancelText="Cancelar"
+          variant={selectedPlant.isActive ? 'danger' : 'success'}
+          onConfirm={confirmToggleStatus}
+          onCancel={() => setShowToggleModal(false)}
+        />
       )}
     </DashboardLayout>
   );

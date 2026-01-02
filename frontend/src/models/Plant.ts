@@ -14,17 +14,21 @@ export interface Plant {
   consumerUnit: string;
   zipCode: string;
   streetName: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
   city: string;
   state: string;
+  isActive: boolean;
   createdAt: string;
   createdBy?: string;
   createdByUser?: { id: string; name: string };
   updatedAt: string;
   updatedBy?: string;
   updatedByUser?: { id: string; name: string };
-  deletedAt?: string;
-  deletedBy?: string;
-  deletedByUser?: { id: string; name: string };
+  deactivatedAt?: string;
+  deactivatedBy?: string;
+  deactivatedByUser?: { id: string; name: string };
 }
 
 // Interface para criação de usina
@@ -37,6 +41,9 @@ export interface CreatePlantDto {
   consumerUnit: string;
   zipCode: string;
   streetName: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
   city: string;
   state: string;
 }
@@ -51,6 +58,10 @@ export interface UpdatePlantDto {
   consumerUnit?: string;
   zipCode?: string;
   streetName?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
   city?: string;
   state?: string;
+  isActive?: boolean;
 }
