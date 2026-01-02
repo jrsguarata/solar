@@ -72,6 +72,31 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
     setFormData({ ...formData, [e.target.name]: value });
   };
 
+  const handleZipCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const zipCode = e.target.value.replace(/\D/g, '');
+    setFormData((prev) => ({ ...prev, zipCode }));
+
+    // Buscar endereço quando CEP tiver 8 dígitos
+    if (zipCode.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`);
+        const data = await response.json();
+
+        if (!data.erro) {
+          setFormData((prev) => ({
+            ...prev,
+            streetName: data.logradouro || '',
+            neighborhood: data.bairro || '',
+            city: data.localidade || '',
+            state: data.uf || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -152,7 +177,7 @@ export function PlantFormModal({ plant, onClose, onSuccess }: PlantFormModalProp
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">CEP *</label>
-                <input type="text" name="zipCode" required maxLength={8} value={formData.zipCode} onChange={handleChange} placeholder="12345678" className="w-full px-3 py-2 border rounded-lg" />
+                <input type="text" name="zipCode" required maxLength={8} value={formData.zipCode} onChange={handleZipCodeChange} placeholder="12345678" className="w-full px-3 py-2 border rounded-lg" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Estado (UF) *</label>
