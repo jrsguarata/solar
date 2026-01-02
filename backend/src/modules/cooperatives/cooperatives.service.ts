@@ -22,9 +22,8 @@ export class CooperativesService {
     const userId = RequestContextService.getUserId();
     const cooperative = this.cooperativesRepository.create(createCooperativeDto);
 
-    // Setar campos de auditoria
+    // Setar apenas created_by no CREATE (updated_by/updated_at ficam NULL)
     (cooperative as any).created_by = userId;
-    (cooperative as any).updated_by = userId;
 
     return this.cooperativesRepository.save(cooperative);
   }

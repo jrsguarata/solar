@@ -21,10 +21,9 @@ export class PlantsService {
   async create(createPlantDto: CreatePlantDto): Promise<Plant> {
     const userId = RequestContextService.getUserId();
     const plant = this.plantsRepository.create(createPlantDto);
-    
-    // Setar campos de auditoria
+
+    // Setar apenas created_by no CREATE (updated_by/updated_at ficam NULL)
     (plant as any).created_by = userId;
-    (plant as any).updated_by = userId;
 
     return this.plantsRepository.save(plant);
   }
