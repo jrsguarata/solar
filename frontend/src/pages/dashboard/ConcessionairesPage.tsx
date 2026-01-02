@@ -158,6 +158,31 @@ export function ConcessionairesPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleZipCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const zipCode = e.target.value.replace(/\D/g, '');
+    setFormData((prev) => ({ ...prev, zipCode }));
+
+    // Buscar endereço quando CEP tiver 8 dígitos
+    if (zipCode.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${zipCode}/json/`);
+        const data = await response.json();
+
+        if (!data.erro) {
+          setFormData((prev) => ({
+            ...prev,
+            streetName: data.logradouro || '',
+            neighborhood: data.bairro || '',
+            city: data.localidade || '',
+            state: data.uf || '',
+          }));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+      }
+    }
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -446,10 +471,11 @@ export function ConcessionairesPage() {
                     required
                     maxLength={8}
                     value={formData.zipCode}
-                    onChange={handleFormChange}
+                    onChange={handleZipCodeChange}
                     placeholder="12345678"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
                   />
+                  <p className="mt-1 text-xs text-gray-500">Digite o CEP para buscar o endereço automaticamente</p>
                 </div>
 
                 <div>
