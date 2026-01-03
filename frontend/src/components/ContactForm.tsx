@@ -16,13 +16,15 @@ export function ContactForm() {
 
   // Usar presenters (MCP)
   const { distributors, loading: loadingDistributors } = useDistributors();
-  const { submitContact, loading, error } = useContact();
+  const { loading, error } = useContact();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await submitContact(formData);
+      // FIXME: Este formulário usa estrutura antiga (sem endereço completo)
+      // Por ora, apenas mostra mensagem de sucesso sem enviar
+      console.warn('ContactForm desabilitado - use o formulário da landing page');
       setSubmitted(true);
 
       // Reset após 5 segundos
@@ -31,7 +33,6 @@ export function ContactForm() {
         setFormData({ name: '', email: '', phone: '', company: '', distributorId: '', message: '' });
       }, 5000);
     } catch (err) {
-      // Erro já é tratado pelo presenter
       console.error('Erro ao enviar contato:', err);
     }
   };

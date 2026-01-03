@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contact } from './entities/contact.entity';
 import { CreateContactDto } from './dto/create-contact.dto';
+import { UpdateContactDto } from './dto/update-contact.dto';
 import { MailService } from '../mail/mail.service';
 
 @Injectable()
@@ -58,5 +59,18 @@ export class ContactsService {
 
   async findOne(id: string): Promise<Contact | null> {
     return this.contactRepository.findOne({ where: { id } });
+  }
+
+  async update(id: string, updateContactDto: UpdateContactDto): Promise<Contact> {
+    const contact = await this.contactRepository.findOne({ where: { id } });
+
+    if (!contact) {
+      throw new NotFoundException(`Contato com ID ${id} não encontrado`);
+    }
+
+    // Atualizar apenas os campos fornecidos
+    Object.assign(contact, updateContactDto);
+
+    return this.contactRepository.save(contact);
   }
 }

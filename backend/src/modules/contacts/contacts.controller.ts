@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
+import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -47,5 +48,19 @@ export class ContactsController {
   @ApiResponse({ status: 404, description: 'Contato não encontrado' })
   async findOne(@Param('id') id: string): Promise<Contact | null> {
     return this.contactsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COADMIN)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Atualizar status e nota do contato (apenas ADMIN/COADMIN)' })
+  @ApiResponse({ status: 200, description: 'Contato atualizado com sucesso' })
+  @ApiResponse({ status: 404, description: 'Contato não encontrado' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateContactDto: UpdateContactDto,
+  ): Promise<Contact> {
+    return this.contactsService.update(id, updateContactDto);
   }
 }

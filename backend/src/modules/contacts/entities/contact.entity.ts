@@ -2,9 +2,10 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, Jo
 import { Company } from '../../companies/entities/company.entity';
 
 export enum ContactStatus {
-  PENDING = 'PENDING',
-  CONTACTED = 'CONTACTED',
-  RESOLVED = 'RESOLVED',
+  PENDING = 'PENDING',    // Quando o contato for criado
+  READ = 'READ',          // Quando o contato for lido
+  SUSPECT = 'SUSPECT',    // Quando for encaminhado para o CRM
+  RESOLVED = 'RESOLVED',  // Quando a solicitação for de outro tipo
 }
 
 @Entity('contacts')
@@ -58,6 +59,9 @@ export class Contact {
     default: ContactStatus.PENDING,
   })
   status: ContactStatus;
+
+  @Column({ type: 'text', nullable: true })
+  note: string;
 
   @CreateDateColumn()
   createdAt: Date;

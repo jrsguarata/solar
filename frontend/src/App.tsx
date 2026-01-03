@@ -19,6 +19,7 @@ import { ConcessionairesPage } from './pages/dashboard/ConcessionairesPage';
 import { PlantsPage } from './pages/dashboard/PlantsPage';
 import { CooperativesPage } from './pages/dashboard/CooperativesPage';
 import { PartnersPage } from './pages/dashboard/PartnersPage';
+import { ContactsPage } from './pages/dashboard/ContactsPage';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
           <Route path="/dashboard/plants" element={<PlantsPage />} />
           <Route path="/dashboard/cooperatives" element={<CooperativesPage />} />
           <Route path="/dashboard/partners" element={<PartnersPage />} />
+          <Route path="/dashboard/contacts" element={<ContactsPage />} />
           <Route path="/dashboard/concessionaires" element={<ConcessionairesPage />} />
           <Route path="/dashboard/audit-logs" element={<AuditLogsPage />} />
           <Route path="/dashboard/profile" element={<ProfilePage />} />
