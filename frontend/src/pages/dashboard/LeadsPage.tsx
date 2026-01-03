@@ -91,12 +91,15 @@ export function LeadsPage() {
 
   const getStatusBadgeClass = (status: LeadStatus): string => {
     const classes: Record<LeadStatus, string> = {
-      LEAD: 'bg-gray-100 text-gray-800',
-      SUSPECT: 'bg-blue-100 text-blue-800',
-      PROSPECT: 'bg-purple-100 text-purple-800',
-      CLIENTE: 'bg-green-100 text-green-800',
-      SEM_COBERTURA: 'bg-orange-100 text-orange-800',
-      DESCARTADO: 'bg-red-100 text-red-800',
+      LEAD: 'bg-blue-100 text-blue-800',
+      SUSPECT: 'bg-yellow-100 text-yellow-800',
+      PROSPECT: 'bg-cyan-100 text-cyan-800',
+      QUALIFIED: 'bg-green-100 text-green-800',
+      PROPOSAL_SENT: 'bg-purple-100 text-purple-800',
+      NEGOTIATION: 'bg-orange-100 text-orange-800',
+      WON: 'bg-green-600 text-white',
+      LOST: 'bg-red-100 text-red-800',
+      ARCHIVED: 'bg-gray-100 text-gray-800',
     };
     return classes[status] || 'bg-gray-100 text-gray-800';
   };
@@ -104,11 +107,14 @@ export function LeadsPage() {
   const getStatusLabel = (status: LeadStatus): string => {
     const labels: Record<LeadStatus, string> = {
       LEAD: 'Lead',
-      SUSPECT: 'Suspect',
-      PROSPECT: 'Prospect',
-      CLIENTE: 'Cliente',
-      SEM_COBERTURA: 'Sem Cobertura',
-      DESCARTADO: 'Descartado',
+      SUSPECT: 'Suspeito',
+      PROSPECT: 'Prospecto',
+      QUALIFIED: 'Qualificado',
+      PROPOSAL_SENT: 'Proposta Enviada',
+      NEGOTIATION: 'Negociação',
+      WON: 'Ganho',
+      LOST: 'Perdido',
+      ARCHIVED: 'Arquivado',
     };
     return labels[status] || status;
   };
@@ -149,11 +155,14 @@ export function LeadsPage() {
               >
                 <option value="ALL">Todos os Status</option>
                 <option value="LEAD">Lead</option>
-                <option value="SUSPECT">Suspect</option>
-                <option value="PROSPECT">Prospect</option>
-                <option value="CLIENTE">Cliente</option>
-                <option value="SEM_COBERTURA">Sem Cobertura</option>
-                <option value="DESCARTADO">Descartado</option>
+                <option value="SUSPECT">Suspeito</option>
+                <option value="PROSPECT">Prospecto</option>
+                <option value="QUALIFIED">Qualificado</option>
+                <option value="PROPOSAL_SENT">Proposta Enviada</option>
+                <option value="NEGOTIATION">Negociação</option>
+                <option value="WON">Ganho</option>
+                <option value="LOST">Perdido</option>
+                <option value="ARCHIVED">Arquivado</option>
               </select>
             </div>
 

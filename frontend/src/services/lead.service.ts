@@ -11,6 +11,14 @@ class LeadService {
   }
 
   /**
+   * Criar lead manualmente (ADMIN/COADMIN/OPERATOR)
+   */
+  async createManual(leadData: CreateLeadDto): Promise<Lead> {
+    const { data } = await api.post<Lead>('/leads/manual', leadData);
+    return data;
+  }
+
+  /**
    * Listar todos os leads (ADMIN/COADMIN only)
    */
   async getAll(): Promise<Lead[]> {
@@ -35,17 +43,34 @@ class LeadService {
   }
 
   /**
-   * Remover lead (ADMIN only)
+   * Avançar lead no funil
    */
-  async delete(id: string): Promise<void> {
-    await api.delete(`/leads/${id}`);
+  async advance(id: string): Promise<Lead> {
+    const { data } = await api.patch<Lead>(`/leads/${id}/advance`);
+    return data;
   }
 
   /**
-   * Listar leads de uma empresa específica
+   * Marcar lead como ganho
    */
-  async getByCompany(companyId: string): Promise<Lead[]> {
-    const { data } = await api.get<Lead[]>(`/leads/company/${companyId}`);
+  async markAsWon(id: string, note?: string): Promise<Lead> {
+    const { data } = await api.patch<Lead>(`/leads/${id}/won`, { note });
+    return data;
+  }
+
+  /**
+   * Marcar lead como perdido
+   */
+  async markAsLost(id: string, note?: string): Promise<Lead> {
+    const { data } = await api.patch<Lead>(`/leads/${id}/lost`, { note });
+    return data;
+  }
+
+  /**
+   * Arquivar lead
+   */
+  async archive(id: string, note?: string): Promise<Lead> {
+    const { data } = await api.patch<Lead>(`/leads/${id}/archive`, { note });
     return data;
   }
 }

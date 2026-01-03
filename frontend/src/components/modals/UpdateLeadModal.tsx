@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import type { Lead, UpdateLeadDto, LeadStatus } from '../../models';
+import type { Lead, UpdateLeadDto } from '../../models';
+import { LeadStatus } from '../../models';
 import leadService from '../../services/lead.service';
 
 interface UpdateLeadModalProps {
@@ -33,14 +34,15 @@ export function UpdateLeadModal({ lead, onClose, onSuccess }: UpdateLeadModalPro
   };
 
   const statusOptions: { value: LeadStatus; label: string }[] = [
-    { value: 'LEAD', label: 'Lead' },
-    { value: 'SUSPECT', label: 'Suspeito' },
-    { value: 'QUALIFIED', label: 'Qualificado' },
-    { value: 'PROPOSAL_SENT', label: 'Proposta Enviada' },
-    { value: 'NEGOTIATION', label: 'Negociação' },
-    { value: 'WON', label: 'Ganho' },
-    { value: 'LOST', label: 'Perdido' },
-    { value: 'ARCHIVED', label: 'Arquivado' },
+    { value: LeadStatus.LEAD, label: 'Lead' },
+    { value: LeadStatus.SUSPECT, label: 'Suspeito' },
+    { value: LeadStatus.PROSPECT, label: 'Prospecto' },
+    { value: LeadStatus.QUALIFIED, label: 'Qualificado' },
+    { value: LeadStatus.PROPOSAL_SENT, label: 'Proposta Enviada' },
+    { value: LeadStatus.NEGOTIATION, label: 'Negociação' },
+    { value: LeadStatus.WON, label: 'Ganho' },
+    { value: LeadStatus.LOST, label: 'Perdido' },
+    { value: LeadStatus.ARCHIVED, label: 'Arquivado' },
   ];
 
   return (
@@ -125,11 +127,11 @@ export function UpdateLeadModal({ lead, onClose, onSuccess }: UpdateLeadModalPro
           </div>
 
           {/* Previous Notes */}
-          {lead.notes && lead.notes.length > 0 && (
+          {lead.leadNotes && lead.leadNotes.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-2">Notas Anteriores</h3>
               <div className="space-y-2 max-h-40 overflow-y-auto">
-                {lead.notes.slice(0, 3).map((note) => (
+                {lead.leadNotes.slice(0, 3).map((note) => (
                   <div key={note.id} className="bg-gray-50 rounded p-3 text-sm">
                     <p className="text-gray-700">{note.note}</p>
                     <p className="text-gray-500 text-xs mt-1">
@@ -137,9 +139,9 @@ export function UpdateLeadModal({ lead, onClose, onSuccess }: UpdateLeadModalPro
                     </p>
                   </div>
                 ))}
-                {lead.notes.length > 3 && (
+                {lead.leadNotes.length > 3 && (
                   <p className="text-xs text-gray-500 text-center">
-                    + {lead.notes.length - 3} notas anteriores
+                    + {lead.leadNotes.length - 3} notas anteriores
                   </p>
                 )}
               </div>

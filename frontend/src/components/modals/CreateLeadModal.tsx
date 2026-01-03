@@ -38,7 +38,7 @@ export function CreateLeadModal({ onClose, onSuccess }: CreateLeadModalProps) {
 
     try {
       // Usar endpoint de criação manual (requer autenticação)
-      await leadService.create(formData);
+      await leadService.createManual(formData);
       onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao criar lead');
