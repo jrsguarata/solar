@@ -1,87 +1,68 @@
-import { Controller, Get, Post, Body, Param, Patch, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ContactsService } from './contacts.service';
-import { CreateLeadDto } from './dto/create-lead.dto';
-import { UpdateLeadDto } from './dto/update-lead.dto';
-import { Lead } from './entities/lead.entity';
+import { CreateContactDto } from './dto/create-contact.dto';
+import { UpdateContactDto } from './dto/update-contact.dto';
+import { Contact } from './entities/contact.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { CompanyAccessGuard } from '../../common/guards/company-access.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
 
-@ApiTags('leads')
-@Controller('leads')
+@ApiTags('contacts')
+@Controller('contacts')
 export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Criar novo lead (público - landing page)' })
-  @ApiResponse({ status: 201, description: 'Lead criado com sucesso' })
+  @ApiOperation({ summary: 'Criar novo contato (público)' })
+  @ApiResponse({ status: 201, description: 'Contato criado com sucesso' })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  async create(@Body() createLeadDto: CreateLeadDto): Promise<Lead> {
-    return this.contactsService.create(createLeadDto);
-  }
-
-  @Post('manual')
-  @UseGuards(JwtAuthGuard, RolesGuard, CompanyAccessGuard)
-  @Roles(UserRole.ADMIN, UserRole.COADMIN, UserRole.OPERATOR)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Criar lead manualmente (apenas usuários autenticados)' })
-  @ApiResponse({ status: 201, description: 'Lead manual criado com sucesso' })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  async createManual(
-    @Body() createLeadDto: CreateLeadDto,
-    @Req() req: any,
-  ): Promise<Lead> {
-    const accessControl = req.accessControl;
-    return this.contactsService.createManual(createLeadDto, accessControl);
+  async create(@Body() createContactDto: CreateContactDto): Promise<Contact> {
+    return this.contactsService.create(createContactDto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard, CompanyAccessGuard)
-  @Roles(UserRole.ADMIN, UserRole.COADMIN, UserRole.OPERATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Listar leads (com filtro multi-tenant)' })
-  @ApiResponse({ status: 200, description: 'Lista de leads filtrada por acesso' })
-  async findAll(@Req() req: any): Promise<Lead[]> {
-    const accessControl = req.accessControl;
-    return this.contactsService.findAll(accessControl);
+  @ApiOperation({ summary: 'Listar todos os contatos (apenas ADMIN/COADMIN)' })
+  @ApiResponse({ status: 200, description: 'Lista de contatos' })
+  async findAll(): Promise<Contact[]> {
+    return this.contactsService.findAll();
   }
 
   @Get('company/:companyId')
-  @ApiOperation({ summary: 'Listar leads de uma empresa (público)' })
-  @ApiResponse({ status: 200, description: 'Lista de leads da empresa' })
-  async findByCompany(@Param('companyId') companyId: string): Promise<Lead[]> {
+  @ApiOperation({ summary: 'Listar contatos de uma empresa (público)' })
+  @ApiResponse({ status: 200, description: 'Lista de contatos da empresa' })
+  async findByCompany(@Param('companyId') companyId: string): Promise<Contact[]> {
     return this.contactsService.findByCompany(companyId);
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard, CompanyAccessGuard)
-  @Roles(UserRole.ADMIN, UserRole.COADMIN, UserRole.OPERATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Buscar lead por ID (com validação de acesso)' })
-  @ApiResponse({ status: 200, description: 'Lead encontrado' })
-  @ApiResponse({ status: 403, description: 'Acesso negado' })
-  @ApiResponse({ status: 404, description: 'Lead não encontrado' })
-  async findOne(@Param('id') id: string, @Req() req: any): Promise<Lead | null> {
-    const accessControl = req.accessControl;
-    return this.contactsService.findOne(id, accessControl);
+  @ApiOperation({ summary: 'Buscar contato por ID (apenas ADMIN/COADMIN)' })
+  @ApiResponse({ status: 200, description: 'Contato encontrado' })
+  @ApiResponse({ status: 404, description: 'Contato não encontrado' })
+  async findOne(@Param('id') id: string): Promise<Contact | null> {
+    return this.contactsService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Atualizar status e adicionar nota ao lead (apenas ADMIN/COADMIN)' })
-  @ApiResponse({ status: 200, description: 'Lead atualizado com sucesso' })
-  @ApiResponse({ status: 404, description: 'Lead não encontrado' })
+  @ApiOperation({ summary: 'Atualizar status e adicionar nota ao contato (apenas ADMIN/COADMIN)' })
+  @ApiResponse({ status: 200, description: 'Contato atualizado com sucesso' })
+  @ApiResponse({ status: 404, description: 'Contato não encontrado' })
   async update(
     @Param('id') id: string,
-    @Body() updateLeadDto: UpdateLeadDto,
+    @Body() updateContactDto: UpdateContactDto,
     @CurrentUser() currentUser: any,
-  ): Promise<Lead> {
-    return this.contactsService.update(id, updateLeadDto, currentUser.id);
+  ): Promise<Contact> {
+    return this.contactsService.update(id, updateContactDto, currentUser.id);
   }
 }
