@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, Users, UserCircle, Lock, FileText, Zap, Factory, Users2, Handshake, Mail } from 'lucide-react';
+import { LayoutDashboard, Building2, Users, UserCircle, Lock, FileText, Zap, Factory, Users2, Handshake, Mail, UserPlus } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { UserRole } from '../../models';
 
@@ -65,6 +65,12 @@ const menuItems: MenuItem[] = [
     icon: Mail,
     label: 'Contatos',
     roles: [UserRole.COADMIN, UserRole.ADMIN],
+  },
+  {
+    path: '/dashboard/leads',
+    icon: UserPlus,
+    label: 'Leads',
+    roles: [UserRole.COADMIN, UserRole.OPERATOR, UserRole.ADMIN],
   },
   {
     path: '/dashboard/concessionaires',
