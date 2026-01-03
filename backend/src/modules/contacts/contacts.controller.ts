@@ -7,6 +7,7 @@ import { Contact } from './entities/contact.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
 
 @ApiTags('contacts')
@@ -54,13 +55,14 @@ export class ContactsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Atualizar status e nota do contato (apenas ADMIN/COADMIN)' })
+  @ApiOperation({ summary: 'Atualizar status e adicionar nota ao contato (apenas ADMIN/COADMIN)' })
   @ApiResponse({ status: 200, description: 'Contato atualizado com sucesso' })
   @ApiResponse({ status: 404, description: 'Contato não encontrado' })
   async update(
     @Param('id') id: string,
     @Body() updateContactDto: UpdateContactDto,
+    @CurrentUser() currentUser: any,
   ): Promise<Contact> {
-    return this.contactsService.update(id, updateContactDto);
+    return this.contactsService.update(id, updateContactDto, currentUser.id);
   }
 }

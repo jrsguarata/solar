@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contact } from './entities/contact.entity';
+import { ContactNote } from './entities/contact-note.entity';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { MailService } from '../mail/mail.service';
@@ -13,6 +14,8 @@ export class ContactsService {
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
+    @InjectRepository(ContactNote)
+    private readonly contactNoteRepository: Repository<ContactNote>,
     private readonly mailService: MailService,
   ) {}
 
@@ -46,6 +49,7 @@ export class ContactsService {
 
   async findAll(): Promise<Contact[]> {
     return this.contactRepository.find({
+      relations: ['notes', 'notes.createdByUser'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -58,19 +62,48 @@ export class ContactsService {
   }
 
   async findOne(id: string): Promise<Contact | null> {
-    return this.contactRepository.findOne({ where: { id } });
+    return this.contactRepository.findOne({
+      where: { id },
+      relations: ['notes', 'notes.createdByUser'],
+      order: { notes: { createdAt: 'DESC' } },
+    });
   }
 
-  async update(id: string, updateContactDto: UpdateContactDto): Promise<Contact> {
-    const contact = await this.contactRepository.findOne({ where: { id } });
+  async update(
+    id: string,
+    updateContactDto: UpdateContactDto,
+    userId: string,
+  ): Promise<Contact> {
+    const contact = await this.contactRepository.findOne({
+      where: { id },
+      relations: ['notes', 'notes.createdByUser'],
+    });
 
     if (!contact) {
       throw new NotFoundException(`Contato com ID ${id} não encontrado`);
     }
 
-    // Atualizar apenas os campos fornecidos
-    Object.assign(contact, updateContactDto);
+    // Atualizar status se fornecido
+    if (updateContactDto.status) {
+      contact.status = updateContactDto.status;
+      await this.contactRepository.save(contact);
+    }
 
-    return this.contactRepository.save(contact);
+    // Criar nova nota se fornecida
+    if (updateContactDto.note) {
+      const note = this.contactNoteRepository.create({
+        contactId: id,
+        note: updateContactDto.note,
+        createdBy: userId,
+      });
+      await this.contactNoteRepository.save(note);
+    }
+
+    // Retornar contato atualizado com notas
+    const updatedContact = await this.findOne(id);
+    if (!updatedContact) {
+      throw new NotFoundException(`Contato com ID ${id} não encontrado`);
+    }
+    return updatedContact;
   }
 }

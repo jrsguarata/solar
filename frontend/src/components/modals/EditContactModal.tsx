@@ -12,11 +12,6 @@ interface EditContactModalProps {
 
 const STATUS_OPTIONS: Array<{ value: ContactStatus; label: string; description: string }> = [
   {
-    value: ContactStatus.PENDING,
-    label: 'Pendente',
-    description: 'Aguardando tratamento',
-  },
-  {
     value: ContactStatus.READ,
     label: 'Lido',
     description: 'Contato foi lido e está sendo analisado',
@@ -34,20 +29,34 @@ const STATUS_OPTIONS: Array<{ value: ContactStatus; label: string; description: 
 ];
 
 export function EditContactModal({ contact, onClose, onSuccess }: EditContactModalProps) {
-  const [formData, setFormData] = useState({
-    status: contact.status,
-    note: contact.note || '',
+  const [formData, setFormData] = useState<{
+    status: ContactStatus | '';
+    note: string;
+  }>({
+    status: '', // Sempre iniciar vazio para forçar seleção
+    note: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validação manual: status é obrigatório
+    if (!formData.status) {
+      setError('Por favor, selecione um novo status para o contato');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      await contactService.update(contact.id, formData);
+      const updateData: { status?: ContactStatus; note?: string } = {
+        status: formData.status as ContactStatus,
+        ...(formData.note && { note: formData.note }),
+      };
+      await contactService.update(contact.id, updateData);
       onSuccess();
     } catch (err: any) {
       console.error('Erro ao atualizar contato:', err);
@@ -124,6 +133,7 @@ export function EditContactModal({ contact, onClose, onSuccess }: EditContactMod
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
+                <option value="">Selecione um status...</option>
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label} - {option.description}
@@ -135,23 +145,46 @@ export function EditContactModal({ contact, onClose, onSuccess }: EditContactMod
               </p>
             </div>
 
-            {/* Nota Interna */}
+            {/* Nova Nota Interna */}
             <div>
               <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-2">
-                Nota Interna
+                Adicionar Nova Nota
               </label>
               <textarea
                 id="note"
                 value={formData.note}
                 onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                rows={6}
+                rows={4}
                 placeholder="Adicione observações, comentários ou informações relevantes sobre este contato..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
               />
               <p className="mt-1 text-sm text-gray-500">
-                Esta nota é apenas para uso interno e não será enviada ao cliente
+                Esta nota ficará registrada com seu nome e data/hora
               </p>
             </div>
+
+            {/* Notas Anteriores */}
+            {contact.notes && contact.notes.length > 0 && (
+              <div className="border-t border-gray-200 pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Notas Anteriores ({contact.notes.length})
+                </label>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {[...contact.notes]
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    .map((note) => (
+                      <div key={note.id} className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
+                        <div className="flex items-center gap-2 text-xs text-blue-700 mb-1">
+                          <span className="font-semibold">{note.createdByUser.name}</span>
+                          <span>•</span>
+                          <span>{new Date(note.createdAt).toLocaleString('pt-BR')}</span>
+                        </div>
+                        <p className="text-gray-900 whitespace-pre-wrap">{note.note}</p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
 
             {/* Mensagem Original */}
             <div className="border-t border-gray-200 pt-4">
@@ -159,6 +192,9 @@ export function EditContactModal({ contact, onClose, onSuccess }: EditContactMod
                 Mensagem Original
               </label>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p className="text-xs text-gray-500 mb-2">
+                  Enviada em: {new Date(contact.createdAt).toLocaleString('pt-BR')}
+                </p>
                 <p className="text-gray-900 whitespace-pre-wrap text-sm">{contact.message}</p>
               </div>
             </div>

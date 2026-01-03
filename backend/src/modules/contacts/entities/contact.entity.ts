@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
+import { ContactNote } from './contact-note.entity';
 
 export enum ContactStatus {
   PENDING = 'PENDING',    // Quando o contato for criado
@@ -60,8 +61,8 @@ export class Contact {
   })
   status: ContactStatus;
 
-  @Column({ type: 'text', nullable: true })
-  note: string;
+  @OneToMany(() => ContactNote, (note) => note.contact)
+  notes: ContactNote[];
 
   @CreateDateColumn()
   createdAt: Date;

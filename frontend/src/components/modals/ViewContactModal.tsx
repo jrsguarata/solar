@@ -136,26 +136,42 @@ export function ViewContactModal({ contact, onClose }: ViewContactModalProps) {
             </div>
           </div>
 
-          {/* Mensagem */}
+          {/* Mensagem Original */}
           <div className="border-t border-gray-200 pt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
-              Mensagem
+              Mensagem Original
             </h3>
             <div className="bg-gray-50 rounded-lg p-4">
+              <p className="text-sm text-gray-500 mb-2">
+                Enviada em: {formatDate(contact.createdAt)}
+              </p>
               <p className="text-gray-900 whitespace-pre-wrap">{contact.message}</p>
             </div>
           </div>
 
-          {/* Nota Interna */}
-          {contact.note && (
+          {/* Notas Internas */}
+          {contact.notes && contact.notes.length > 0 && (
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                Nota Interna
+                Notas Internas ({contact.notes.length})
               </h3>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-gray-900 whitespace-pre-wrap">{contact.note}</p>
+              <div className="space-y-3">
+                {[...contact.notes]
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((note) => (
+                    <div key={note.id} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2 text-sm text-blue-700">
+                          <span className="font-semibold">{note.createdByUser.name}</span>
+                          <span className="text-blue-500">•</span>
+                          <span>{formatDate(note.createdAt)}</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-900 whitespace-pre-wrap">{note.note}</p>
+                    </div>
+                  ))}
               </div>
             </div>
           )}

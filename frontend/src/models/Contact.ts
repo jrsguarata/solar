@@ -6,6 +6,19 @@ export enum ContactStatus {
   RESOLVED = 'RESOLVED',  // Quando a solicitação for de outro tipo
 }
 
+// Interface ContactNote
+export interface ContactNote {
+  id: string;
+  contactId: string;
+  note: string;
+  createdBy: string;
+  createdByUser: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+}
+
 // Interface Contact
 export interface Contact {
   id: string;
@@ -22,7 +35,7 @@ export interface Contact {
   companyId?: string;
   message: string;
   status: ContactStatus;
-  note?: string;
+  notes: ContactNote[];
   createdAt: string;
 }
 
