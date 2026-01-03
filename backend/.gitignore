@@ -1,1 +1,7 @@
 dist.old/
+
+# Documents - Propostas comerciais (não commitar PDFs/DOCXs)
+documents/proposals/**/*.pdf
+documents/proposals/**/*.docx
+documents/proposals/**/*.doc
+!documents/proposals/.gitkeep

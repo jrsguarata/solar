@@ -1,0 +1,10 @@
+# Esta pasta armazena as propostas comerciais enviadas aos leads/prospects
+#
+# Estrutura:
+# documents/proposals/{contact-id}/v{version}-{filename}.pdf
+#
+# Exemplo:
+# documents/proposals/abc123-uuid/v1-proposta-comercial.pdf
+# documents/proposals/abc123-uuid/v2-proposta-revisada.pdf
+#
+# IMPORTANTE: Não commitar arquivos .pdf ou .docx desta pasta

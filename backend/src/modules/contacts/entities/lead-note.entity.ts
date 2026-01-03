@@ -1,18 +1,25 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Contact } from './contact.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Lead } from './lead.entity';
 import { User } from '../../users/entities/user.entity';
 
-@Entity('contact_notes')
-export class ContactNote {
+@Entity('lead_notes')
+export class LeadNote {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'contact_id' })
-  contactId: string;
+  @Column({ name: 'lead_id' })
+  leadId: string;
 
-  @ManyToOne(() => Contact, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'contact_id' })
-  contact: Contact;
+  @ManyToOne(() => Lead, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'lead_id' })
+  lead: Lead;
 
   @Column('text')
   note: string;
