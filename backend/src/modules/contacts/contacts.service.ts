@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Lead } from './entities/lead.entity';
 import { LeadNote } from './entities/lead-note.entity';
-import { CreateContactDto } from './dto/create-lead.dto';
-import { UpdateContactDto } from './dto/update-lead.dto';
+import { CreateLeadDto } from './dto/create-lead.dto';
+import { UpdateLeadDto } from './dto/update-lead.dto';
 import { MailService } from '../mail/mail.service';
 
 @Injectable()
@@ -19,49 +19,49 @@ export class ContactsService {
     private readonly mailService: MailService,
   ) {}
 
-  async create(createContactDto: CreateContactDto): Promise<Lead> {
+  async create(createLeadDto: CreateLeadDto): Promise<Lead> {
     // Criar registro no banco
-    const lead = this.leadRepository.create(createContactDto);
-    const savedLead = await this.leadRepository.save(contact);
+    const lead = this.leadRepository.create(createLeadDto);
+    const savedLead = await this.leadRepository.save(lead);
 
     // Enviar emails de forma assíncrona (não bloquear a resposta)
-    this.sendNotificationEmails(createContactDto).catch((error) => {
+    this.sendNotificationEmails(createLeadDto).catch((error) => {
       this.logger.error('Erro ao enviar emails de notificação:', error);
     });
 
     return savedLead;
   }
 
-  private async sendNotificationEmails(contactData: CreateContactDto): Promise<void> {
+  private async sendNotificationEmails(leadData: CreateLeadDto): Promise<void> {
     try {
       // Enviar notificação para a empresa
-      await this.mailService.sendContactNotification(contactData);
+      await this.mailService.sendContactNotification(leadData);
 
       // Enviar confirmação para o cliente
-      await this.mailService.sendContactConfirmation(contactData.email, contactData.name);
+      await this.mailService.sendContactConfirmation(leadData.email, leadData.name);
 
-      this.logger.log(`Emails enviados com sucesso para ${contactData.email}`);
+      this.logger.log(`Emails enviados com sucesso para ${leadData.email}`);
     } catch (error) {
       this.logger.error('Erro ao enviar emails:', error);
       throw error;
     }
   }
 
-  async findAll(): Promise<Contact[]> {
+  async findAll(): Promise<Lead[]> {
     return this.leadRepository.find({
       relations: ['notes', 'notes.createdByUser'],
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findByCompany(companyId: string): Promise<Contact[]> {
+  async findByCompany(companyId: string): Promise<Lead[]> {
     return this.leadRepository.find({
       where: { companyId },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findOne(id: string): Promise<Contact | null> {
+  async findOne(id: string): Promise<Lead | null> {
     return this.leadRepository.findOne({
       where: { id },
       relations: ['notes', 'notes.createdByUser'],
@@ -71,7 +71,7 @@ export class ContactsService {
 
   async update(
     id: string,
-    updateContactDto: UpdateContactDto,
+    updateLeadDto: UpdateLeadDto,
     userId: string,
   ): Promise<Lead> {
     const lead = await this.leadRepository.findOne({
@@ -79,31 +79,31 @@ export class ContactsService {
       relations: ['notes', 'notes.createdByUser'],
     });
 
-    if (!contact) {
-      throw new NotFoundException(`Contato com ID ${id} não encontrado`);
+    if (!lead) {
+      throw new NotFoundException(`Lead com ID ${id} não encontrado`);
     }
 
     // Atualizar status se fornecido
-    if (updateContactDto.status) {
-      lead.status = updateContactDto.status;
-      await this.leadRepository.save(contact);
+    if (updateLeadDto.status) {
+      lead.status = updateLeadDto.status;
+      await this.leadRepository.save(lead);
     }
 
     // Criar nova nota se fornecida
-    if (updateContactDto.note) {
+    if (updateLeadDto.note) {
       const note = this.leadNoteRepository.create({
-        contactId: id,
-        note: updateContactDto.note,
+        leadId: id,
+        note: updateLeadDto.note,
         createdBy: userId,
       });
       await this.leadNoteRepository.save(note);
     }
 
-    // Retornar contato atualizado com notas
-    const updatedContact = await this.findOne(id);
-    if (!updatedContact) {
-      throw new NotFoundException(`Contato com ID ${id} não encontrado`);
+    // Retornar lead atualizado com notas
+    const updatedLead = await this.findOne(id);
+    if (!updatedLead) {
+      throw new NotFoundException(`Lead com ID ${id} não encontrado`);
     }
-    return updatedContact;
+    return updatedLead;
   }
 }

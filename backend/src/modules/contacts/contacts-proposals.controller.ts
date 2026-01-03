@@ -8,7 +8,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
-  HttpStatus,
   Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -20,10 +19,10 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ContactsProposalsService } from './contacts-proposals.service';
 import { CreateContactProposalDto } from './dto/create-contact-proposal.dto';
-import { ContactProposal } from './entities/contact-proposal.entity';
+import { LeadProposal } from './entities/lead-proposal.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -31,8 +30,8 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { UserRole } from '../users/entities/user.entity';
 import * as fs from 'fs';
 
-@ApiTags('contact-proposals')
-@Controller('contacts/:contactId/proposals')
+@ApiTags('lead-proposals')
+@Controller('leads/:leadId/proposals')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class ContactsProposalsController {
@@ -49,7 +48,7 @@ export class ContactsProposalsController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Enviar proposta comercial para contato (apenas ADMIN/COADMIN)',
+    summary: 'Enviar proposta comercial para lead (apenas ADMIN/COADMIN)',
   })
   @ApiBody({
     schema: {
@@ -87,54 +86,54 @@ export class ContactsProposalsController {
   @ApiResponse({
     status: 201,
     description: 'Proposta criada com sucesso',
-    type: ContactProposal,
+    type: LeadProposal,
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos ou arquivo muito grande' })
-  @ApiResponse({ status: 404, description: 'Contato não encontrado' })
+  @ApiResponse({ status: 404, description: 'Lead não encontrado' })
   async create(
-    @Param('contactId') contactId: string,
+    @Param('leadId') leadId: string,
     @Body() createDto: CreateContactProposalDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
     @CurrentUser() currentUser: any,
-  ): Promise<ContactProposal> {
-    return this.proposalsService.create(contactId, createDto, file, currentUser.id);
+  ): Promise<LeadProposal> {
+    return this.proposalsService.create(leadId, createDto, file, currentUser.id);
   }
 
   // ═══════════════════════════════════════════════════════════
-  // LISTAR TODAS AS PROPOSTAS DE UM CONTATO
+  // LISTAR TODAS AS PROPOSTAS DE UM LEAD
   // ═══════════════════════════════════════════════════════════
 
   @Get()
   @Roles(UserRole.ADMIN, UserRole.COADMIN, UserRole.OPERATOR)
   @ApiOperation({
-    summary: 'Listar todas as propostas de um contato',
+    summary: 'Listar todas as propostas de um lead',
   })
   @ApiResponse({
     status: 200,
     description: 'Lista de propostas retornada com sucesso',
-    type: [ContactProposal],
+    type: [LeadProposal],
   })
-  async findByContact(@Param('contactId') contactId: string): Promise<ContactProposal[]> {
-    return this.proposalsService.findByContact(contactId);
+  async findByLead(@Param('leadId') leadId: string): Promise<LeadProposal[]> {
+    return this.proposalsService.findByLead(leadId);
   }
 
   // ═══════════════════════════════════════════════════════════
-  // BUSCAR ÚLTIMA PROPOSTA DE UM CONTATO
+  // BUSCAR ÚLTIMA PROPOSTA DE UM LEAD
   // ═══════════════════════════════════════════════════════════
 
   @Get('latest')
   @Roles(UserRole.ADMIN, UserRole.COADMIN, UserRole.OPERATOR)
   @ApiOperation({
-    summary: 'Buscar última proposta enviada para um contato',
+    summary: 'Buscar última proposta enviada para um lead',
   })
   @ApiResponse({
     status: 200,
     description: 'Última proposta retornada com sucesso',
-    type: ContactProposal,
+    type: LeadProposal,
   })
   @ApiResponse({ status: 404, description: 'Nenhuma proposta encontrada' })
-  async findLatest(@Param('contactId') contactId: string): Promise<ContactProposal | null> {
-    return this.proposalsService.findLatest(contactId);
+  async findLatest(@Param('leadId') leadId: string): Promise<LeadProposal | null> {
+    return this.proposalsService.findLatest(leadId);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -149,10 +148,10 @@ export class ContactsProposalsController {
   @ApiResponse({
     status: 200,
     description: 'Proposta encontrada com sucesso',
-    type: ContactProposal,
+    type: LeadProposal,
   })
   @ApiResponse({ status: 404, description: 'Proposta não encontrada' })
-  async findOne(@Param('id') id: string): Promise<ContactProposal> {
+  async findOne(@Param('id') id: string): Promise<LeadProposal> {
     return this.proposalsService.findOne(id);
   }
 

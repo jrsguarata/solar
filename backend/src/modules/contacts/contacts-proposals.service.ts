@@ -35,24 +35,24 @@ export class ContactsProposalsService {
   // ═══════════════════════════════════════════════════════════
 
   async create(
-    contactId: string,
+    leadId: string,
     createDto: CreateContactProposalDto,
-    file: Express.Multer.File,
+    file: any,
     userId: string,
   ): Promise<LeadProposal> {
-    // Validar se contato existe
+    // Validar se lead existe
     const lead = await this.leadRepository.findOne({
-      where: { id: contactId },
+      where: { id: leadId },
     });
 
-    if (!contact) {
-      throw new NotFoundException(`Contato com ID ${contactId} não encontrado`);
+    if (!lead) {
+      throw new NotFoundException(`Lead com ID ${leadId} não encontrado`);
     }
 
-    // Validar status do contato (só pode enviar proposta para PROSPECT)
+    // Validar status do lead (só pode enviar proposta para PROSPECT)
     if (lead.status !== 'SUSPECT' && lead.status !== 'PROSPECT') {
       throw new BadRequestException(
-        'Propostas só podem ser enviadas para contatos com status SUSPECT ou PROSPECT',
+        'Propostas só podem ser enviadas para leads com status SUSPECT ou PROSPECT',
       );
     }
 
@@ -61,18 +61,18 @@ export class ContactsProposalsService {
 
     // Calcular próxima versão
     const lastProposal = await this.proposalRepository.findOne({
-      where: { contactId },
+      where: { leadId },
       order: { version: 'DESC' },
     });
 
     const nextVersion = lastProposal ? lastProposal.version + 1 : 1;
 
     // Salvar arquivo no sistema de arquivos
-    const filePath = await this.saveFile(contactId, nextVersion, file);
+    const filePath = await this.saveFile(leadId, nextVersion, file);
 
     // Criar registro no banco
     const proposal = this.proposalRepository.create({
-      contactId,
+      leadId,
       version: nextVersion,
       quotaKwh: createDto.quotaKwh,
       monthlyValue: createDto.monthlyValue,
@@ -88,7 +88,7 @@ export class ContactsProposalsService {
     const savedProposal = await this.proposalRepository.save(proposal);
 
     this.logger.log(
-      `Proposta v${nextVersion} criada para contato ${contactId} por usuário ${userId}`,
+      `Proposta v${nextVersion} criada para lead ${leadId} por usuário ${userId}`,
     );
 
     // Retornar com relacionamentos
@@ -99,7 +99,7 @@ export class ContactsProposalsService {
   // VALIDAR ARQUIVO
   // ═══════════════════════════════════════════════════════════
 
-  private validateFile(file: Express.Multer.File): void {
+  private validateFile(file: any): void {
     if (!file) {
       throw new BadRequestException('Arquivo é obrigatório');
     }
@@ -124,19 +124,19 @@ export class ContactsProposalsService {
   // ═══════════════════════════════════════════════════════════
 
   private async saveFile(
-    contactId: string,
+    leadId: string,
     version: number,
-    file: Express.Multer.File,
+    file: any,
   ): Promise<string> {
-    // Criar diretório do contato se não existir
-    const contactDir = path.join(this.DOCUMENTS_PATH, contactId);
-    await fs.mkdir(contactDir, { recursive: true });
+    // Criar diretório do lead se não existir
+    const leadDir = path.join(this.DOCUMENTS_PATH, leadId);
+    await fs.mkdir(leadDir, { recursive: true });
 
     // Gerar nome do arquivo: v{version}-{original-name}
     const extension = path.extname(file.originalname);
     const nameWithoutExt = path.basename(file.originalname, extension);
     const fileName = `v${version}-${nameWithoutExt}${extension}`;
-    const filePath = path.join(contactDir, fileName);
+    const filePath = path.join(leadDir, fileName);
 
     // Salvar arquivo
     await fs.writeFile(filePath, file.buffer);
@@ -147,12 +147,12 @@ export class ContactsProposalsService {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // BUSCAR TODAS AS PROPOSTAS DE UM CONTATO
+  // BUSCAR TODAS AS PROPOSTAS DE UM LEAD
   // ═══════════════════════════════════════════════════════════
 
-  async findByContact(contactId: string): Promise<ContactProposal[]> {
+  async findByLead(leadId: string): Promise<LeadProposal[]> {
     return this.proposalRepository.find({
-      where: { contactId },
+      where: { leadId },
       relations: ['sentByUser'],
       order: { version: 'DESC' },
     });
@@ -165,7 +165,7 @@ export class ContactsProposalsService {
   async findOne(id: string): Promise<LeadProposal> {
     const proposal = await this.proposalRepository.findOne({
       where: { id },
-      relations: ['sentByUser', 'contact'],
+      relations: ['sentByUser', 'lead'],
     });
 
     if (!proposal) {
@@ -176,12 +176,12 @@ export class ContactsProposalsService {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // BUSCAR ÚLTIMA PROPOSTA DE UM CONTATO
+  // BUSCAR ÚLTIMA PROPOSTA DE UM LEAD
   // ═══════════════════════════════════════════════════════════
 
-  async findLatest(contactId: string): Promise<ContactProposal | null> {
+  async findLatest(leadId: string): Promise<LeadProposal | null> {
     return this.proposalRepository.findOne({
-      where: { contactId },
+      where: { leadId },
       relations: ['sentByUser'],
       order: { version: 'DESC' },
     });
